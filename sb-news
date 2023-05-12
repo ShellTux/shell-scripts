@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# Dependecies:
+# 	- neofetch
+# 	- newsboat
+# 	- dunst
+
+[ ! -z "$1" ] && BLOCK_BUTTON=$1
+
+case $BLOCK_BUTTON in
+	2) notify-send "Status Bar Module: news " "\- Shows unread news items
+\- <b>Middle Click</b>, shows this help notification.
+\- <b>Shift + Left Click</b>, opens newsboat.
+\- <b>Ctrl + Right Click</b> to edit this module.
+<b><span color=\"red\">Note:</span></b> Only one instance of newsboat (including updates) may be running at a time." ;;
+	4) scratchpad --title News --command newsboat ;;
+	9) "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+unread="$(newsboat -x print-unread | awk '{print $1}')"
+if [ ! "$unread" = 0 ];
+then
+      [ "$(neofetch wm | awk '{print $2}')" = "dwm" ] && printf "[ $unread]\n"
+      [ "$(neofetch de | awk '{print $2}')" = "xmonad" ] && printf "$unread\n"
+fi
+newsboat -x reload &
+
+unset unread

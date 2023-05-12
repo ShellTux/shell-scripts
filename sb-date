@@ -1,0 +1,15 @@
+#!/bin/sh
+case $BLOCK_BUTTON in
+	1) notify-send "Calendar" "$(date '+%A, %d de %B de %Y')
+$(cal --color=always | sed 's/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/')";;
+	2) notify-send "Status Bar Module: date " "\- Shows day of the week and today's date.
+\- <b>Left Click</b>, shows a calendar for the current month.
+\- <b>Middle Click</b>, shows this help notification.
+\- <b>Shift + Left Click</b>, shows a calendar for the previous, current and next month.
+\- <b>Ctrl + Right Click</b> to edit this module." ;;
+	4) notify-send "Calendar" "$(date '+%A, %d de %B de %Y')
+$(cal -3 --color=always | sed 's/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/')";;
+	9) "$TERMINAL" -e "$EDITOR" "$0";;
+esac
+
+printf "[ %s]\n" "$(date '+%a, %d/%m/%Y')"

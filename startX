@@ -1,0 +1,14 @@
+#!/bin/sh
+
+export XDG_SESSION_TYPE=x11
+
+case "$1" in
+	awesome) setconf ~/.xinitrc DEFAULT_SESSION=awesome ;;
+	dwm)     setconf ~/.xinitrc DEFAULT_SESSION=dwm     ;;
+	i3)      setconf ~/.xinitrc DEFAULT_SESSION=i3      ;;
+	xmonad)  setconf ~/.xinitrc DEFAULT_SESSION=xmonad  ;;
+	*)       printf "Not a valid window manager\n";
+		exit;;
+esac
+
+startx

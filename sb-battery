@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# Dependecies:
+# 	- dunst
+
+case $BLOCK_BUTTON in
+	2) notify-send "Status Bar Module: battery " "\- Shows Battery %.
+\- <b>Middle Click</b>, shows this help notification.
+\- <b>Ctrl + Right Click</b> to edit this module." ;;
+	9) "$TERMINAL" -e "$EDITOR" "$0";;
+esac
+LC_NUMERIC="en_US.UTF-8"
+for battery in /sys/class/power_supply/BAT?*; do
+	case "$(cat "$battery/status" 2>&1)" in
+		"Charging") stat=" ";;
+		"Full") stat=" ";;
+		*) stat="";;
+	esac
+	level="$(cat "$battery/capacity")"
+	case "$(printf "%.0f" "$(echo "$level*0.01*4" | bc -l)")" in
+		"0") icon="";; # Empty
+		"1") icon="";; # Quarter
+		"2") icon="";; # Half
+		"3") icon="";; # Three Quarters
+		"4") icon="";; # Full
+		*) icon="!";;
+	esac
+	if [ ! "$stat" = "" ] && [ "$level" -lt 20 ];then
+	      stat="! $stat"
+	      notify-send --urgency="critical" -h "int:value:$level" "Low on battery"
+	fi
+	printf "[%s%s %d%%]\n" "$stat" "$icon" "$level"
+done  
+
+unset stat
+unset level
+unset icon

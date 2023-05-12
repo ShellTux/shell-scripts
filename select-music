@@ -1,0 +1,23 @@
+#!/bin/sh
+
+[ "$(mpc playlist)" = "" ] && exit 1
+
+prompt="Play: "
+case $XDG_SESSION_TYPE in
+	x11)
+		selection="dmenu -p "
+		;;
+	wayland)
+		selection="wofi --insensitive --show dmenu --prompt "
+		;;
+esac
+
+[ -t 1 ] && selection="fzf --prompt "
+
+music="$(mpc playlist | $selection "$prompt")"
+
+[ "$music" = "" ] && exit 1
+
+music_index=$(mpc playlist | awk "/$music/ {print NR}")
+
+mpc play $music_index

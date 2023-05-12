@@ -1,0 +1,11 @@
+#!/bin/sh
+
+progress="$(mpc status | awk '(NR==2) { print $4 }' | sed 's/[()]//g;s/%//')"
+message="$(mpc status | sed 's/playing/  /;s/paused/  /')
+
+$(mpc stats)"
+
+notify-send \
+	--urgency=low \
+	--icon="/tmp/cover.png" \
+	--hint="int:value:$progress" "MPD" "$message"

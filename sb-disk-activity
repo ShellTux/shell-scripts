@@ -1,0 +1,18 @@
+#!/bin/sh
+
+case $BLOCK_BUTTON in
+	2) notify-send " Status Bar Module: Disk Activity" "\- Shows read and write activity
+\- <b>Middle Click</b>, shows this help notification.
+\- <b>Ctrl + Right Click</b> to edit this module." ;;
+	9) "$TERMINAL" -e "$EDITOR" "$0";;
+esac
+
+disk_activity="$(dstat -d 1 2 1 | tail -n -1)"
+read_="$(echo "$disk_activity" | awk '{print $1}')"
+write_="$(echo "$disk_activity" | awk '{print $2}')"
+
+printf "[ R:%4s, W: %4s]\n" "$read_" "$write_"
+
+unset disk_activity
+unset read_
+unset write_

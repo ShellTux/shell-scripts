@@ -1,0 +1,64 @@
+#!/usr/bin/env sh
+
+# Default values
+scratchpad_terminal="$TERMINAL"
+class="Scratchpad"
+title="Scratchpad"
+name="Scratchpad"
+com="/bin/zsh"
+resolution="$(xrandr | awk '/\*/ {print $1}')"
+case $resolution in 
+	"1366x768")  lines=24 ; columns=100 ; width=1000 ; height=600 ;;
+	"1680x1050") lines=30 ; columns=120 ; width=1400 ; height=800 ;;
+	*)           lines=24 ; columns=130 ; width=1400 ; height=800 ;;
+esac
+
+for argument in "$@"
+do
+	case "$argument" in 
+		-c | --class)    class=$2 ; shift ; shift ;;
+		-n | --name)     name=$2 ; shift ; shift ;;
+		-t | --title)    title=$2 ; shift ; shift ;;
+		-L | --lines)    lines=$2 ; shift ; shift ;;
+		-C | --columns)  columns=$2 ; shift ; shift ;;
+		-e | --command)  com=$2 ; shift ; shift ;;
+		-T | --terminal) scratchpad_terminal=$2 ; shift ; shift ;;
+	esac
+done
+
+# echo "Class: $class"
+# echo "Name: $name"
+# echo "Title: $title"
+# echo "Lines: $lines"
+# echo "Columns: $columns"
+# echo "Width: $width"
+# echo "Height: $height"
+# echo "Terminal: $scratchpad_terminal"
+# echo "Command: $com"
+# exit
+
+case $scratchpad_terminal in
+	"alacritty") setsid \
+		-f alacritty \
+		--class "$class,$name" \
+		--title "$title" \
+		--option "window.dimensions.lines=$lines" \
+		--option "window.dimensions.columns=$columns" \
+		--command $com ;;
+	"kitty")     setsid \
+		-f kitty \
+		--class "$class" \
+		--name "$name" \
+		--title "$title" \
+		--override "remember_window_size no" \
+		--override "initial_window_width $width" \
+		--override "initial_window_height $height" \
+		$com;;
+	"st")        setsid \
+		-f st \
+		-c "$class" \
+		-t "$title" \
+		-n "$name" \
+		-g "$columns"'x'"$lines" \
+		-e $com ;;
+esac

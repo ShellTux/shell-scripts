@@ -1,0 +1,25 @@
+#!/bin/sh
+
+pkgs="$(pacman -Qu | wc -l)"
+[ $pkgs -eq 0 ] && msg="All packages are up to date" || msg="$(pacman -Qu)"
+
+[ ! -z "$1" ] && BLOCK_BUTTON=$1
+
+case $BLOCK_BUTTON in
+	1) notify-send "Packages update (Pacman)" "$msg" ;;
+	2) notify-send "Status Bar Module: packages " "\- Shows number of packages that are out-of-date.
+\- <b>Left Click</b>, shows a list of the outdated packages.
+\- <b>Middle Click</b>, shows this help notification.
+\- <b>Right Click</b>, opens a terminal ($TERMINAL) and force sync of local database of packages.
+\- <b>Shift + Left Click</b>, opens sb-popupgrade.
+\- <b>Ctrl + Right Click</b> to edit this module." ;;
+	3) scratchpad --title Update --command "doas pacman -Syy" ;;
+	4) scratchpad --title Upgrade --command "sb-popupgrade" ;;
+	9) "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+[ ! "$pkgs" = 0 ] && [ "$(neofetch wm | awk '{print $2}')" = "dwm" ] && printf "[ %d]\n" "$pkgs"
+[ "$(neofetch de | awk '{print $2}')" = "xmonad" ] && printf "$pkgs\n"
+
+unset pkgs
+unset msg

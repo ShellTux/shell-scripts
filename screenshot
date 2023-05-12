@@ -1,0 +1,17 @@
+#!/bin/sh
+
+folder="$HOME/Imagens/Screenshots/"
+cd $folder
+
+alias scrot='scrot -q 100'
+
+case $1 in
+      fullscreen )
+	    scrot ;;
+      select )
+	    scrot -s ;;
+      current )
+	    scrot -u ;;
+      * )
+	    scrot ;;
+esac

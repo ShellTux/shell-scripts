@@ -1,0 +1,31 @@
+#!/bin/sh
+
+location=${1:-/}
+[ -d "$location" ] || exit
+case "$location" in
+	"/storage"*) icon="";;
+	"/home"*) icon="";;
+	"/dev"*) icon="";;
+	*) icon="";;
+esac
+
+usage_perc="$(df -h "$location" | awk '{if (NR==2) print $5}' | sed 's/%//')"
+
+[ ! -z "$2" ] && BLOCK_BUTTON="$2"
+
+case $BLOCK_BUTTON in
+	1) notify-send -h "int:value:$usage_perc" "$(du -Sh --exclude="NAS" $HOME 2>&1 | sort -rh | head)";;
+	2) notify-send "Status Bar Module: disk " "\- Show disk usage.
+\- <b>Left Click</b>, shows top 10 directories that use the most space in home folder ($HOME).
+\- <b>Middle Click</b>, shows this help notification.
+\- <b>Shift + Left Click</b>, shows file system space usage.
+\- <b>Ctrl + Right Click</b> to edit this module." ;;
+	4) notify-send "$(df -h)";;
+	9) "$TERMINAL" -e "$EDITOR" "$0";;
+esac
+
+printf "[%s:%s %s%%]\n" "$icon" "$(df -h "$location" | awk '{if (NR==2) print $3 "/" $2}')" "$usage_perc"
+
+unset location
+unset icon
+unset usage_perc
