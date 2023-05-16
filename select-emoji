@@ -12,7 +12,7 @@ case $XDG_SESSION_TYPE in
 		;;
 esac
 
-[ -t 1 ] && selection="fzf --prompt "
+[ "$(tty)" = "/dev/pts/0" ] && selection="fzf --prompt "
 
 
 emoji="$(cat "$HOME/.local/share/emojis.txt" | $selection "$prompt" | awk '{print $1}')"
