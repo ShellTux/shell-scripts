@@ -12,11 +12,13 @@ case $XDG_SESSION_TYPE in
 		;;
 esac
 
-[ "$(tty)" = "/dev/pts/0" ] && selection="fzf --prompt "
+[ "$(tty | grep --count '^/dev/pts/[0-9]\+$')" = "1" ] && \
+	selection="fzf --prompt "
 
 
-emoji="$(cat "$HOME/.local/share/emojis.txt" | $selection "$prompt" | awk '{print $1}')"
+emoji="$($selection "$prompt" < "$HOME/.local/share/emojis.txt" |
+	awk '{print $1}')"
 [ "$emoji" = "" ] && exit
 
-printf "$emoji" | $clipboard
+printf '%s' "$emoji" | $clipboard
 notify-send "$emoji copied to clipboard"
