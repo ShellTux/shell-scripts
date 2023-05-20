@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Map Draw region area to screen
-xsetwacom set "Wacom Intuos S Pad pad" MapToOutput "$(xrandr | awk '/ connected / { print $4 }')"
+xsetwacom set "Wacom Intuos S Pad pad" \
+	MapToOutput "$(xrandr | awk '/ connected / { print $4 }')"
 
 # A + sign before a key means it is pressed, while a - sign means it is released.
 # Keys with no signs are pressed then released.

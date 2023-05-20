@@ -8,18 +8,28 @@ case "$XDG_CURRENT_DESKTOP" in
 		while true
 		do
 			sleep $time_seconds
-			swww img --transition-type any "$(find ~/Imagens/Wallpapers -maxdepth 1 -type f -name "*.jpg" -o -name "*.png" -o -name "*.gif" | shuf | head -1)"
+			swww img \
+				--transition-type any \
+				"$(find ~/Imagens/Wallpapers \
+				-maxdepth 1 \
+				-type f \
+				-name "*.jpg" -o \
+				-name "*.png" -o \
+				-name "*.gif" \
+				| shuf \
+				| head -1)"
 		done
-		break
 		;;
 
 	"X-Generic")
 		printf "Xorg Wallpaper Loop\n"
 		while true
 		do
-			feh --no-fehbg --bg-fill --randomize $HOME/Imagens/Wallpapers
+			feh \
+				--no-fehbg \
+				--bg-fill \
+				--randomize "$HOME"/Imagens/Wallpapers
 			sleep $time_seconds
 		done
-		break
 		;;
 esac

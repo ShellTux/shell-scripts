@@ -4,11 +4,24 @@
 # 	- net-tools
 
 case $BLOCK_BUTTON in
-	1) notify-send "Network Traffic" "Download (Total): $(cat /sys/class/net/[ew]*/statistics/rx_bytes | numfmt --to=iec)
+	1) notify-send \
+		"Network Traffic" \
+		"Download (Total): $(cat /sys/class/net/[ew]*/statistics/rx_bytes | \
+		numfmt --to=iec)
 Upload (Total): $(cat /sys/class/net/[ew]*/statistics/tx_bytes | numfmt --to=iec)B
-Download: $(echo "$(cat /sys/class/net/[ew]*/statistics/rx_bytes) - $(cat $HOME/.cache/rx_bytes)" | bc | numfmt --to=iec)B
-Upload: $(echo "$(cat /sys/class/net/[ew]*/statistics/tx_bytes) - $(cat $HOME/.cache/tx_bytes)" | bc | numfmt --to=iec)B";;
-	2) notify-send "Status Bar Module: network-traffic " "\- Shows download ( B) and Upload ( B).
+Download: $(echo \
+	"$(cat /sys/class/net/[ew]*/statistics/rx_bytes)" \
+	" - " \
+	"$(cat "$HOME"/.cache/rx_bytes)" \
+	| bc | numfmt --to=iec)B
+Upload: $(echo \
+	"$(cat /sys/class/net/[ew]*/statistics/tx_bytes)" \
+	" - " \
+	"$(cat "$HOME"/.cache/tx_bytes)" \
+	| bc | numfmt --to=iec)B";;
+	2) notify-send \
+		"Status Bar Module: network-traffic " \
+		"\- Shows download ( B) and Upload ( B).
 \- <b>Left Click</b>, shows more information about network traffic.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
@@ -29,7 +42,7 @@ update() {
 }
 rx=$(update /sys/class/net/[ew]*/statistics/rx_bytes)
 tx=$(update /sys/class/net/[ew]*/statistics/tx_bytes)
-printf "[%4sB %4sB]\\n" $(numfmt --to=iec $rx) $(numfmt --to=iec $tx)
+printf "[%4sB %4sB]\\n" "$(numfmt --to=iec "$rx")" "$(numfmt --to=iec "$tx")"
 
 unset rx
 unset tx

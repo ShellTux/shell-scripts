@@ -1,7 +1,9 @@
 #!/bin/sh
 
 case $BLOCK_BUTTON in
-	2) notify-send " Status Bar Module: Disk Activity" "\- Shows read and write activity
+	2) notify-send \
+		" Status Bar Module: Disk Activity" \
+		"\- Shows read and write activity
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	9) "$TERMINAL" -e "$EDITOR" "$0";;

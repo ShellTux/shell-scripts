@@ -4,9 +4,9 @@ counter=20
 
 [ ! "$1" = "" ] && counter=$1
 
-while [ $counter -gt 0 ]
+while [ "$counter" -gt 0 ]
 do
-	figlet $counter | lolcat &
+	figlet "$counter" | lolcat &
 	counter=$((counter - 1))
 	sleep 1
 done

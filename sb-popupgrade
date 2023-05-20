@@ -1,13 +1,19 @@
 #!/bin/sh
 
-[ "$(pacman -Qu | wc -l)" = "0" ] && printf "\nPackages up to date!\n" && read lol && exit
+[ "$(pacman -Qu | wc -l)" = "0" ] \
+	&& printf "\nPackages up to date!\n" \
+	&& read -r \
+	&& exit
 printf "Beginning upgrading packages\nsudo pacman -Syu\n"
 if [ ! "$(pacman -Qu linux)" = "" ];
 then
 	printf "There is a kernel update. It will reboot\n"
 	pacman -Qu linux
 	sudo pacman -Syu
-	notify-send --expire-time 60000 --urgency critical "Reboot" "1 minute until reboot"
+	notify-send \
+		--expire-time 60000 \
+		--urgency critical \
+		"Reboot" "1 minute until reboot"
 	sleep 60
 	notify-send "Rebooting Machine..."
 	sleep 1
@@ -15,12 +21,13 @@ then
 else
 	sudo pacman -Syu
 fi
-read -p "Upgrade AUR Packages? [y/N] " aur
+printf 'Upgrade AUR Packages? [y/N] '
+read -r aur
 if [ "$aur" = "y" ] || [ "$aur" = "Y" ] || [ "$aur" = "yes" ]
 then
 	yay --aur -Syyu
 fi
 printf "\nUpgrade completed.\nPress <Enter> to exit window.\n"
-read lol
+read -r
 
 pkill -RTMIN+2 dwmblocks

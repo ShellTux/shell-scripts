@@ -3,14 +3,20 @@
 LC_NUMERIC="en_US.UTF-8"
 cachefile="${XDG_CACHE_HOME:-$HOME/.cache}/proc/stat"
 # usage="$(top -b -n 1 | awk '/Cpu/ { print "100-"$8 }' | cut -f 1 -d ',' | bc)"
-usage="$(awk '/cpu / {usagei=$2+$4; totali=$2+$4+$5; if (NR==1){usagef=usagei; totalf=totali;} else print (usagef-usagei)/(totalf-totali)*100}' $cachefile /proc/stat)"
+usage="$(awk \
+	'/cpu / {usagei=$2+$4; totali=$2+$4+$5; if (NR==1){usagef=usagei; totalf=totali;}
+else print (usagef-usagei)/(totalf-totali)*100}' "$cachefile" /proc/stat)"
 usage="$(printf '%.0f\n' "$usage")"
 
-[ ! -z "$1" ] && BLOCK_BUTTON=$1
+[ -n "$1" ] && BLOCK_BUTTON=$1
 
 case $BLOCK_BUTTON in
-	1) notify-send -h "int:value:$usage" "$(ps exc -o cmd,%cpu:15 --sort=-%cpu | head)";;
-	2) notify-send "Status Bar Module: cpu " "\- Shows usage (%) and current Temperature (ºC) of the cpu.
+	1) notify-send \
+		-h "int:value:$usage" \
+		"$(ps exc -o cmd,%cpu:15 --sort=-%cpu | head)";;
+	2) notify-send \
+		"Status Bar Module: cpu " \
+		"\- Shows usage (%) and current Temperature (ºC) of the cpu.
 \- <b>Left Click</b>, shows top 10 most intensive processes on the cpu.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, opens htop.
@@ -20,7 +26,9 @@ case $BLOCK_BUTTON in
 	9) "$TERMINAL" -e "$EDITOR" "$0";;
 esac
 
-printf "[ %02d%% %.0fºC]\n" "$usage" "$(sensors | awk '/Package id 0:/ { print $4 }' | grep -o '[[:digit:]]*\.[[:digit:]]*' | bc)"
+printf "[ %02d%% %.0fºC]\n" "$usage" \
+	"$(sensors | awk '/Package id 0:/ { print $4 }' | \
+	grep -o '[[:digit:]]*\.[[:digit:]]*' | bc)"
 
 awk '/cpu /' /proc/stat > "$cachefile"
 

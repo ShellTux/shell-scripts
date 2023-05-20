@@ -3,7 +3,7 @@
 # 	- dunst
 # 	- brightnessctl
 
-[ ! -r "$(which brightnessctl 2>/dev/null)" ] && break
+[ ! -r "$(which brightnessctl 2>/dev/null)" ] && exit
 
 LC_NUMERIC="en_US.UTF-8"
 brightness="$(brightnessctl | awk '(NR == 2){print $4}' | sed 's/(//;s/)//')"
@@ -20,6 +20,6 @@ case $BLOCK_BUTTON in
 	# ';') brightnessctl set 5%- --min-value 1 ;; # Scroll down
 esac
 
-printf "[ %s]\n" "$brightness" 
+printf "[ %s]\n" "$brightness"
 
 unset perc

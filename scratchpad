@@ -44,7 +44,7 @@ case $scratchpad_terminal in
 		--title "$title" \
 		--option "window.dimensions.lines=$lines" \
 		--option "window.dimensions.columns=$columns" \
-		--command $com ;;
+		--command "$com" ;;
 	"kitty")     setsid \
 		-f kitty \
 		--class "$class" \
@@ -53,12 +53,12 @@ case $scratchpad_terminal in
 		--override "remember_window_size no" \
 		--override "initial_window_width $width" \
 		--override "initial_window_height $height" \
-		$com;;
+		"$com";;
 	"st")        setsid \
 		-f st \
 		-c "$class" \
 		-t "$title" \
 		-n "$name" \
 		-g "$columns"'x'"$lines" \
-		-e $com ;;
+		-e "$com" ;;
 esac

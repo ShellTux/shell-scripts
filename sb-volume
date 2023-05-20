@@ -3,24 +3,36 @@
 [ "$1" = "music" ] && notify-music
 
 change_volume() {
-      [ $(command -v pulsemixer) ] && pulsemixer --change-volume "$2$1" && return
-      [ $(command -v wpctl) ] && wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" && return
+      [ "$(command -v pulsemixer)" ] \
+	      && pulsemixer --change-volume "$2$1" \
+	      && return
+      [ "$(command -v wpctl)" ] \
+	      && wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" \
+	      && return
 }
 
 get_volume () {
-      [ $(command -v pulsemixer) ] && echo $(pulsemixer --get-volume | awk '{print $1}') && return
-      [ $(command -v wpctl) ] && echo $(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2*100}') && return
+      [ "$(command -v pulsemixer)" ] \
+	      && pulsemixer --get-volume | awk '{print $1}' \
+	      && return
+      [ "$(command -v wpctl)" ] \
+	      && wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2*100}' \
+	      && return
 }
 
 is_muted () {
-      [ $(command -v pulsemixer) ] && echo $(pulsemixer --get-mute) && return
-      [ $(command -v wpctl) ] && [ ! "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep MUTED)" = "" ] && echo 1 || echo 0 && return
+      [ "$(command -v pulsemixer)" ] \
+	      && pulsemixer --get-mute \
+	      && return
+      [ "$(command -v wpctl)" ] \
+	      && [ ! "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep MUTED)" = "" ] \
+	      && echo 1 || echo 0 && return
 }
 
-[ $(command -v wpctl) ] && control_panel="pavucontrol"
-[ $(command -v pulsemixer) ] && control_panel="pulsemixer"
+[ "$(command -v wpctl)" ] && control_panel="pavucontrol"
+[ "$(command -v pulsemixer)" ] && control_panel="pulsemixer"
 
-[ ! -z "$1" ] && [ ! "$1" = "music" ] && BLOCK_BUTTON=$1
+[ -n "$1" ] && [ ! "$1" = "music" ] && BLOCK_BUTTON=$1
 
 case $BLOCK_BUTTON in
 	1) notify-music ;;
@@ -57,7 +69,11 @@ icon=""
 [ "$vol" -gt 75 ] && icon=""
 [ "$muted" -eq 1 ] && icon=""
 music=""
-[ ! -z "$(mpc status | awk '(NR==2 && /playing/){ print }')" ] && music="|$(mpc status | awk '(NR==3){print}' | sed 's/[a-z]\+: off/-/g;s/repeat: on/r/;s/random: on/z/;s/single: on/s/;s/consume: on/c/;s/ //g;s/volume:\([0-9]\+%\)/:\1 /')"
+[ -n "$(mpc status | awk '(NR==2 && /playing/){ print }')" ] \
+	&& music="|$(mpc status | \
+	awk '(NR==3){print}' | \
+	sed 's/[a-z]\+: off/-/g;s/repeat: on/r/;s/random: on/z/;s/single: on/s/' | \
+	sed 's/consume: on/c/;s/ //g;s/volume:\([0-9]\+%\)/:\1 /')"
 
 printf "[$icon %d%%%s]\n" "$vol" "$music"
 

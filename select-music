@@ -20,4 +20,4 @@ music="$(mpc playlist | $selection "$prompt")"
 
 music_index=$(mpc playlist | awk "/$music/ {print NR}")
 
-mpc play $music_index
+mpc play "$music_index"

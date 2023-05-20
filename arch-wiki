@@ -23,6 +23,7 @@ esac
 
 [ -t 1 ] && command="fzf --prompt "
 
-page="$(find /usr/share/doc/arch-wiki -type f -iregex ".*/$lang/.*.html" -printf "%f\n" | sed 's/.html$//' | $command "$prompt")"
+page="$(find /usr/share/doc/arch-wiki -type f -iregex ".*/$lang/.*.html" -printf "%f\n" |
+	sed 's/.html$//' | $command "$prompt")"
 
-[ ! -z "$page" ] && firefox "/usr/share/doc/arch-wiki/html/$lang/$page.html"
+[ -n "$page" ] && firefox "/usr/share/doc/arch-wiki/html/$lang/$page.html"

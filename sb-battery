@@ -30,7 +30,7 @@ for battery in /sys/class/power_supply/BAT?*; do
 	      notify-send --urgency="critical" -h "int:value:$level" "Low on battery"
 	fi
 	printf "[%s%s %d%%]\n" "$stat" "$icon" "$level"
-done  
+done
 
 unset stat
 unset level

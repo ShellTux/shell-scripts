@@ -4,7 +4,11 @@ while true
 do
 	mpc current --wait
 	rm /tmp/cover.png
-	ffmpeg -loglevel quiet -y -i "$(xdg-user-dir MUSIC)/$(mpc --format %file% current)" -an -vcodec copy /tmp/cover.png
+	ffmpeg \
+		-loglevel quiet \
+		-y \
+		-i "$(xdg-user-dir MUSIC)/$(mpc --format %file% current)" \
+		-an -vcodec copy /tmp/cover.png
 	notify-music
 	pkill -RTMIN+20 dwmblocks
 done
