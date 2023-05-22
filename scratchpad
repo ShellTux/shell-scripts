@@ -7,7 +7,7 @@ title="Scratchpad"
 name="Scratchpad"
 com="/bin/zsh"
 resolution="$(xrandr | awk '/\*/ {print $1}')"
-case $resolution in 
+case $resolution in
 	"1366x768")  lines=24 ; columns=100 ; width=1000 ; height=600 ;;
 	"1680x1050") lines=30 ; columns=120 ; width=1400 ; height=800 ;;
 	*)           lines=24 ; columns=130 ; width=1400 ; height=800 ;;
@@ -44,7 +44,7 @@ case $scratchpad_terminal in
 		--title "$title" \
 		--option "window.dimensions.lines=$lines" \
 		--option "window.dimensions.columns=$columns" \
-		--command "$com" ;;
+		--command $com ;;
 	"kitty")     setsid \
 		-f kitty \
 		--class "$class" \
@@ -53,12 +53,12 @@ case $scratchpad_terminal in
 		--override "remember_window_size no" \
 		--override "initial_window_width $width" \
 		--override "initial_window_height $height" \
-		"$com";;
+		$com;;
 	"st")        setsid \
 		-f st \
 		-c "$class" \
 		-t "$title" \
 		-n "$name" \
 		-g "$columns"'x'"$lines" \
-		-e "$com" ;;
+		-e $com ;;
 esac
