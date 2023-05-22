@@ -2,7 +2,7 @@
 
 [ "$(pacman -Qu | wc -l)" = "0" ] \
 	&& printf "\nPackages up to date!\n" \
-	&& read -r \
+	&& read -r _ \
 	&& exit
 printf "Beginning upgrading packages\nsudo pacman -Syu\n"
 if [ ! "$(pacman -Qu linux)" = "" ];
@@ -28,6 +28,6 @@ then
 	yay --aur -Syyu
 fi
 printf "\nUpgrade completed.\nPress <Enter> to exit window.\n"
-read -r
+read -r _
 
 pkill -RTMIN+2 dwmblocks
