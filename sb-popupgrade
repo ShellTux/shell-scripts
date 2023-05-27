@@ -1,5 +1,7 @@
 #!/bin/sh
 
+aur_helper=paru
+
 [ "$(pacman -Qu | wc -l)" = "0" ] \
 	&& printf "\nPackages up to date!\n" \
 	&& read -r _ \
@@ -25,7 +27,7 @@ printf 'Upgrade AUR Packages? [y/N] '
 read -r aur
 if [ "$aur" = "y" ] || [ "$aur" = "Y" ] || [ "$aur" = "yes" ]
 then
-	yay --aur -Syyu
+	$aur_helper --aur -Syyu
 fi
 printf "\nUpgrade completed.\nPress <Enter> to exit window.\n"
 read -r _
