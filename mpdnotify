@@ -2,6 +2,7 @@
 
 while true
 do
+	[ "$(pgrep "^mpd$")" = "" ] && exit 0
 	mpc current --wait
 	rm /tmp/cover.png
 	ffmpeg \
