@@ -1,6 +1,6 @@
 #!/bin/sh
 
-aur_helper=paru
+aur_helper=yay
 
 [ "$(pacman -Qu | wc -l)" = "0" ] \
 	&& printf "\nPackages up to date!\n" \
