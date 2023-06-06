@@ -3,15 +3,43 @@
 folder="$HOME/Imagens/Screenshots/"
 cd "$folder" || exit
 
-alias scrot='scrot -q 100'
+file="$HOME/Imagens/Screenshots/Capture-$(date +%Y-%m-%d_%H-%m-%s).png"
+quality=100
 
-case $1 in
-      fullscreen )
-	    scrot ;;
-      select )
-	    scrot -s ;;
-      current )
-	    scrot -u ;;
-      * )
-	    scrot ;;
-esac
+if [ "$XDG_SESSION_TYPE" = "x11" ]
+then
+	case $1 in
+		fullscreen )
+			scrot --quality $quality --file "$file";;
+		select )
+			scrot --quality $quality --select=capture --file "$file";;
+		current )
+			scrot --quality $quality --focused --file "$file";;
+		* )
+			scrot --quality $quality --file "$file";;
+	esac
+	notify-send \
+		--icon "$file" \
+		"Screenshot Taken Successfully" \
+		"Copied to Clipboard  "
+elif [ "$XDG_SESSION_TYPE" = "wayland" ]
+then
+	case $1 in
+		fullscreen )
+			grim "$file";;
+		select )
+			grim -g "$(slurp)" "$file";;
+
+		# TODO: Implent Current window selected in wayland
+		#
+		# current )
+		# 	grim -q $quality "$file";;
+		* )
+			grim "$file";;
+	esac
+	wl-copy < "$file"
+	notify-send \
+		--icon "$file" \
+		"Screenshot Taken Successfully" \
+		"Copied to Clipboard  "
+fi
