@@ -18,7 +18,7 @@ window() {
 	"
 }
 
-tmux new-session -d -s scratchpad -n Term "$(window $shell --login)" \; \
+tmux new-session -d -s scratchpad -n Term "$(window $shell)" \; \
 	new-window -n btop "$(window btop)" \; \
 	new-window -n htop "$(window htop)" \; \
 	new-window -n nvtop "$(window nvtop)" \; \
