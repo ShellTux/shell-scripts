@@ -193,6 +193,7 @@ if __name__ == '__main__':
         print(device)
 
     if operation == 'unmount':
+        # TODO: close and umount encrypted drives
         run(['sudo', 'umount', device.path], stdout = PIPE)
         exit(0)
 
@@ -224,6 +225,7 @@ if __name__ == '__main__':
             exit(0)
 
         print(path)
+        # TODO: Mount encrypted devices
         run(['sudo', 'mkdir', '--parents', path], stdout = PIPE)
         run(['sudo', 'mount', device.path, path], stdout = PIPE)
         exit(0)
