@@ -120,7 +120,7 @@ def mount_filter(device: Device) -> bool:
     return True
 
 def unmount_filter(device: Device) -> bool:
-    if any([mount in device.mountpoints for mount in ['/', '/home']]):
+    if any([mount in device.mountpoints for mount in ['/', '/home', '/boot']]):
         return False
 
     if len(device.mountpoints) == 0:
