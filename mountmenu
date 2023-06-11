@@ -41,10 +41,20 @@ class Device:
                     mountpoints.split(r'\x0a')
                     )
                 )
+        self.is_encrypted: bool = fstype in ['crypto_LUKS'] \
+                or type in ['crypt']
 
     def __str__(self) -> str:
-        return f'{self.path: <25} | {self.name: <15} | {self.type: <10}' + \
-                f' | {self.fstype: <10} | {self.mountpoints}'
+        return f'''{self.name}:
+  : {self.is_encrypted},
+  path: {self.path},
+  name: {self.name},
+  label: {self.label},
+  size: {convert_bytes(self.size)},
+  type: {self.type},
+  fstype: {self.fstype},
+  mountpoints: {self.mountpoints}
+                '''
 
 class Table:
     def __init__(self, devices: list[Device] = []) -> None:
@@ -102,10 +112,12 @@ class Table:
     def __str__(self) -> str:
         text: str = ''
         for device in self.devices:
+            text += ' ' if device.is_encrypted else '  '
             text += device.path + '\t'
+            text += device.fstype + '\t'
             text += convert_bytes(device.size) + '\t'
-            text += device.type + '\t'
-            text += str(device.mountpoints) + '\n'
+            text += device.label
+            text += '\n'
         return text
 
     def get_device_by_path(self, path: str) -> Device | None:
@@ -157,7 +169,7 @@ if __name__ == '__main__':
         print('Provide arguments: mount, unmount')
         exit(1)
 
-    operation: str = cmd_arguments[1]
+    operation: str = cmd_arguments[-1]
 
     argument_to_filter = {
             'mount': mount_filter,
@@ -183,22 +195,54 @@ if __name__ == '__main__':
 
 
     device: Device | None = None
-    path: str = launcher(prompt = prompt, pipe = str(filtered_table)) \
-            .split('\t')[0]
-    device = filtered_table.get_device_by_path(path)
+    mount_path: str = launcher(prompt = prompt, pipe = str(filtered_table)) \
+            .split('\t')[0].strip().split(' ')[-1]
+    device = filtered_table.get_device_by_path(mount_path)
 
     if device is None:
+        print('No device given')
         exit(0)
     else:
         print(device)
 
     if operation == 'unmount':
         # TODO: close and umount encrypted drives
-        run(['sudo', 'umount', device.path], stdout = PIPE)
+        commands = [
+                ['sudo', 'umount', device.path],
+                ]
+
+        if device.is_encrypted:
+            commands.append(
+                    ['sudo', 'cryptsetup', 'close', device.name]
+                    )
+
+        for command in commands:
+            print(' '.join(command))
+            run(command, stdout = PIPE)
+
         exit(0)
 
     if operation == 'mount':
+        name: str = ''
+        if device.is_encrypted:
+            name = launcher(prompt = 'Enter a name for the decrypted drive: ',
+                            pipe = '\n'.join((
+                                'encrypted_usb',
+                                ))
+                            )\
+                                    .replace(' ', '_')
+
+            if len(name) == 0:
+                print('No name given for the decrypted drive')
+                exit(0)
+
         mountpoints: list[str] = []
+
+        if device.is_encrypted:
+            mountpoints.extend([
+                f'/mnt/{name}',
+                f'/media/{name}',
+                ])
 
         if len(device.label) > 0:
             mountpoints.extend([
@@ -217,15 +261,28 @@ if __name__ == '__main__':
         mountpoints \
                 .extend(stdout(['find', '/', '-maxdepth', '1', '-type', 'd']))
 
-        path: str = launcher(prompt = 'Select partition: ',
+        mount_path: str = launcher(prompt = 'Select partition: ',
                  pipe = '\n'.join(mountpoints)
                  )
 
-        if len(path) == 0:
+        if len(mount_path) == 0:
+            print('No path given to mount the drive')
             exit(0)
 
-        print(path)
+        print(mount_path)
         # TODO: Mount encrypted devices
-        run(['sudo', 'mkdir', '--parents', path], stdout = PIPE)
-        run(['sudo', 'mount', device.path, path], stdout = PIPE)
+        if device.is_encrypted:
+            commands = (
+                    ['sudo', 'mkdir', '--parents', mount_path],
+                    ['sudo', 'cryptsetup', 'open', device.path, name],
+                    ['sudo', 'mount', f'/dev/mapper/{name}', mount_path],
+                    )
+        else:
+            commands = (
+                    ['sudo', 'mkdir', '--parents', mount_path],
+                    ['sudo', 'mount', device.path, mount_path],
+                    )
+        for command in commands:
+            print(' '.join(command))
+            run(command, stdout = PIPE)
         exit(0)
