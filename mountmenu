@@ -1,37 +1,69 @@
 #!/usr/bin/env python
 
-from subprocess import check_output as stdout
-from typing import Callable, Type
+from subprocess import check_output, Popen, PIPE, run
+from typing import Callable
 from sys import argv as cmd_arguments
+from math import log
+
+def stdout(command: list[str]) -> list[str]:
+    output = check_output(command).decode().strip().split('\n')
+    output = list(filter(lambda string: len(string) > 0, output))
+    return output
+
+def convert_bytes(bytes: int) -> str:
+    units = {
+            'bytes': 0,
+            'KiB': 1,
+            'MiB': 2,
+            'GiB': 3,
+            'TiB': 4
+            }
+    unit = 'bytes'
+    if bytes > 0:
+        exponent = min(int(log(bytes, 1024)), len(units) - 1)
+        quotient = float(bytes) / 1024**exponent
+        unit = list(units.keys())[list(units.values()).index(exponent)]
+        return '{:.2f} {}'.format(quotient, unit)
+    return '0B'
 
 class Device:
-    def __init__(self, *, path = '', name = '', label = '', size = '', type = '', fstype = '', model = '', mountpoints = '') -> None:
-        self.path = path
-        self.name = name
-        self.label = label
-        self.size = size
-        self.type = type
-        self.fstype = fstype
-        self.model = model
-        self.mountpoints = mountpoints
+    def __init__(self, *, path = '', name = '', label = '', size = '', \
+            type = '', fstype = '', mountpoints = '') -> None:
+        self.path: str = path
+        self.name: str = name
+        self.label: str = label
+        self.size: int = int(size)
+        self.type: str = type
+        self.fstype: str = fstype
+        self.mountpoints: list[str] = list(
+                filter(
+                    lambda string: len(string) > 0,
+                    mountpoints.split(r'\x0a')
+                    )
+                )
 
     def __str__(self) -> str:
-        return f'{self.path: <25} | {self.name: <15} | {self.type: <10} | {self.fstype: <10}'
+        return f'{self.path: <25} | {self.name: <15} | {self.type: <10}' + \
+                f' | {self.fstype: <10} | {self.mountpoints}'
 
 class Table:
     def __init__(self, devices: list[Device] = []) -> None:
         self.devices: list[Device] = devices
+
+    def is_empty(self) -> bool:
+        return len(self.devices) == 0
 
     def gen(self):
         FIELDS: str = 'PATH,NAME,LABEL,SIZE,TYPE,FSTYPE,MOUNTPOINTS'
         amount_fields: int = len(FIELDS.split(','))
         output = stdout(
                 ['lsblk',
+                 '--bytes',
                  '--inverse',
                  '--nodeps',
                  '--raw',
                  '--output',
-                 FIELDS]).decode().strip().split('\n')
+                 FIELDS])
 
         for line in output[1:]:
             fields = [ '' for _ in range(amount_fields) ]
@@ -64,8 +96,22 @@ class Table:
     def append(self, device: Device) -> None:
         self.devices.append(device)
 
-    def filter(self, filter_function: Callable[[Device], bool]) -> Type['Table']:
-        return Table(filter(filter_function, self.devices))
+    def filter(self, filter_function: Callable[[Device], bool]):
+        return Table(list(filter(filter_function, self.devices)))
+
+    def __str__(self) -> str:
+        text: str = ''
+        for device in self.devices:
+            text += device.path + '\t'
+            text += convert_bytes(device.size) + '\t'
+            text += device.type + '\t'
+            text += str(device.mountpoints) + '\n'
+        return text
+
+    def get_device_by_path(self, path: str) -> Device | None:
+        for device in self.devices:
+            if device.path == path:
+                return device
 
 def mount_filter(device: Device) -> bool:
     if len(device.mountpoints) != 0:
@@ -74,7 +120,7 @@ def mount_filter(device: Device) -> bool:
     return True
 
 def unmount_filter(device: Device) -> bool:
-    if device.mountpoints in ['/', '/home']:
+    if any([mount in device.mountpoints for mount in ['/', '/home']]):
         return False
 
     if len(device.mountpoints) == 0:
@@ -82,22 +128,102 @@ def unmount_filter(device: Device) -> bool:
 
     return True
 
+def launcher(*, prompt: str, pipe: str) -> str:
+    menu_command = [
+            'bemenu',
+            '--ignorecase',
+            '--list=10',
+            f'--prompt={prompt}',
+            '--wrap',
+            '--fn=Fira Code 16'
+            ]
+
+    output: str | None = None
+    with Popen(menu_command, stdin=PIPE, stdout=PIPE) as process:
+        if process.stdin is not None:
+            process.stdin.write(pipe.encode())
+            process.stdin.close()
+
+        if process.stdout is not None:
+            output = process.stdout.read().decode().strip()
+
+    return '' if output is None else output
+
 if __name__ == '__main__':
     table: Table = Table()
     table.gen()
 
-    if len(cmd_arguments) > 1:
-        argument_to_filter = {
-                'mount': mount_filter,
-                'unmount': unmount_filter,
-                }
-
-        if not argument_to_filter.get(cmd_arguments[1]):
-            print(f'Invalid argument {cmd_arguments[1]}')
-            exit(1)
-
-        table.filter(argument_to_filter[cmd_arguments[1]]).print()
-    else:
+    if len(cmd_arguments) <= 1:
         print('Provide arguments: mount, unmount')
+        exit(1)
+
+    operation: str = cmd_arguments[1]
+
+    argument_to_filter = {
+            'mount': mount_filter,
+            'unmount': unmount_filter,
+            }
+
+    if not argument_to_filter.get(operation):
+        print(f'Invalid argument {operation}')
+        exit(1)
+
+    filtered_table: Table = table.filter(argument_to_filter[operation])
+
+    if filtered_table.is_empty():
+        print(f'No devices to {operation}')
+        exit(0)
+
+    prompt: str = 'Unmount: ' if operation == 'unmount' else 'Mount: '
+
+    menu_command = ['wofi',
+                    '--dmenu',
+                    '--insensitive',
+                    f'--prompt={prompt}']
 
 
+    device: Device | None = None
+    path: str = launcher(prompt = prompt, pipe = str(filtered_table)) \
+            .split('\t')[0]
+    device = filtered_table.get_device_by_path(path)
+
+    if device is None:
+        exit(0)
+    else:
+        print(device)
+
+    if operation == 'unmount':
+        run(['sudo', 'umount', device.path], stdout = PIPE)
+        exit(0)
+
+    if operation == 'mount':
+        mountpoints: list[str] = []
+
+        if len(device.label) > 0:
+            mountpoints.extend([
+                f'/mnt/{device.label}',
+                f'/media/{device.label}',
+                ])
+
+        mountpoints.extend([
+            f'/mnt/{device.name}',
+            f'/media/{device.name}',
+            ])
+
+        mountpoints \
+                .extend(stdout(['find', '/mnt', '-type', 'd']))
+
+        mountpoints \
+                .extend(stdout(['find', '/', '-maxdepth', '1', '-type', 'd']))
+
+        path: str = launcher(prompt = 'Select partition: ',
+                 pipe = '\n'.join(mountpoints)
+                 )
+
+        if len(path) == 0:
+            exit(0)
+
+        print(path)
+        run(['sudo', 'mkdir', '--parents', path], stdout = PIPE)
+        run(['sudo', 'mount', device.path, path], stdout = PIPE)
+        exit(0)
