@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+
+from subprocess import check_output as stdout
+from typing import Callable, Type
+from sys import argv as cmd_arguments
+
+class Device:
+    def __init__(self, *, path = '', name = '', label = '', size = '', type = '', fstype = '', model = '', mountpoints = '') -> None:
+        self.path = path
+        self.name = name
+        self.label = label
+        self.size = size
+        self.type = type
+        self.fstype = fstype
+        self.model = model
+        self.mountpoints = mountpoints
+
+    def __str__(self) -> str:
+        return f'{self.path: <25} | {self.name: <15} | {self.type: <10} | {self.fstype: <10}'
+
+class Table:
+    def __init__(self, devices: list[Device] = []) -> None:
+        self.devices: list[Device] = devices
+
+    def gen(self):
+        FIELDS: str = 'PATH,NAME,LABEL,SIZE,TYPE,FSTYPE,MOUNTPOINTS'
+        amount_fields: int = len(FIELDS.split(','))
+        output = stdout(
+                ['lsblk',
+                 '--inverse',
+                 '--nodeps',
+                 '--raw',
+                 '--output',
+                 FIELDS]).decode().strip().split('\n')
+
+        for line in output[1:]:
+            fields = [ '' for _ in range(amount_fields) ]
+
+            for index, field in enumerate(line.split(' ')):
+                if len(field) <= 0:
+                    continue
+
+                fields[index] = field.replace(r'\x20', ' ')
+
+            device = Device(
+                    path = fields[0],
+                    name = fields[1],
+                    label = fields[2],
+                    size = fields[3],
+                    type = fields[4],
+                    fstype = fields[5],
+                    mountpoints = fields[6],
+                    )
+
+            if device.type in ['disk', 'rom']:
+                continue
+
+            self.devices.append(device)
+
+    def print(self) -> None:
+        for device in self.devices:
+            print(device)
+
+    def append(self, device: Device) -> None:
+        self.devices.append(device)
+
+    def filter(self, filter_function: Callable[[Device], bool]) -> Type['Table']:
+        return Table(filter(filter_function, self.devices))
+
+def mount_filter(device: Device) -> bool:
+    if len(device.mountpoints) != 0:
+        return False
+
+    return True
+
+def unmount_filter(device: Device) -> bool:
+    if device.mountpoints in ['/', '/home']:
+        return False
+
+    if len(device.mountpoints) == 0:
+        return False
+
+    return True
+
+if __name__ == '__main__':
+    table: Table = Table()
+    table.gen()
+
+    if len(cmd_arguments) > 1:
+        argument_to_filter = {
+                'mount': mount_filter,
+                'unmount': unmount_filter,
+                }
+
+        if not argument_to_filter.get(cmd_arguments[1]):
+            print(f'Invalid argument {cmd_arguments[1]}')
+            exit(1)
+
+        table.filter(argument_to_filter[cmd_arguments[1]]).print()
+    else:
+        print('Provide arguments: mount, unmount')
+
+
