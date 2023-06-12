@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
+from os import isatty
 from subprocess import check_output, Popen, PIPE, run
 from typing import Callable
-from sys import argv as cmd_arguments
+from sys import argv as cmd_arguments, stdin
 from math import log
 
 def stdout(command: list[str]) -> list[str]:
@@ -205,36 +206,26 @@ if __name__ == '__main__':
     else:
         print(device)
 
+    commands: list[list[str]] = []
+
     if operation == 'unmount':
-        # TODO: close and umount encrypted drives
-        commands = [
-                ['sudo', 'umount', device.path],
-                ]
+        commands.append(['umount', device.path])
 
         if device.is_encrypted:
-            commands.append(
-                    ['sudo', 'cryptsetup', 'close', device.name]
-                    )
+            commands.append(['cryptsetup', 'close', device.name])
 
-        for command in commands:
-            print(' '.join(command))
-            run(command, stdout = PIPE)
-
-        exit(0)
-
-    if operation == 'mount':
+    elif operation == 'mount':
         name: str = ''
         if device.is_encrypted:
             name = launcher(prompt = 'Enter a name for the decrypted drive: ',
                             pipe = '\n'.join((
                                 'encrypted_usb',
                                 ))
-                            )\
-                                    .replace(' ', '_')
+                            ).replace(' ', '_')
 
-            if len(name) == 0:
-                print('No name given for the decrypted drive')
-                exit(0)
+        if len(name) == 0:
+            print('No name given for the decrypted drive')
+            exit(0)
 
         mountpoints: list[str] = []
 
@@ -270,19 +261,26 @@ if __name__ == '__main__':
             exit(0)
 
         print(mount_path)
-        # TODO: Mount encrypted devices
         if device.is_encrypted:
-            commands = (
-                    ['sudo', 'mkdir', '--parents', mount_path],
-                    ['sudo', 'cryptsetup', 'open', device.path, name],
-                    ['sudo', 'mount', f'/dev/mapper/{name}', mount_path],
-                    )
+            commands.extend((
+                ['mkdir', '--parents', mount_path],
+                ['cryptsetup', 'open', device.path, name],
+                ['mount', f'/dev/mapper/{name}', mount_path],
+                ))
         else:
-            commands = (
-                    ['sudo', 'mkdir', '--parents', mount_path],
-                    ['sudo', 'mount', device.path, mount_path],
-                    )
-        for command in commands:
-            print(' '.join(command))
-            run(command, stdout = PIPE)
-        exit(0)
+            commands.extend((
+                ['mkdir', '--parents', mount_path],
+                ['mount', device.path, mount_path],
+                ))
+
+    print('Run')
+
+    joined_commands: str = ' ; '.join(
+        map(lambda command: ' '.join(command), commands)
+        )
+
+    raise_priviligies: str = 'pkexec'
+    final_command: str = f"{raise_priviligies} sh -c '{joined_commands}'"
+
+    print(final_command)
+    # run(final_command)
