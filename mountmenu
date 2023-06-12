@@ -205,13 +205,13 @@ if __name__ == '__main__':
     else:
         print(device)
 
-    commands: list[list[str]] = []
+    commands: list[str] = []
 
     if operation == 'unmount':
-        commands.append(['umount', device.path])
+        commands.append(f'umount {device.path}')
 
         if device.is_encrypted:
-            commands.append(['cryptsetup', 'close', device.name])
+            commands.append(f'cryptsetup close {device.name}')
 
     elif operation == 'mount':
         name: str = ''
@@ -222,9 +222,9 @@ if __name__ == '__main__':
                                 ))
                             ).replace(' ', '_')
 
-        if len(name) == 0:
-            print('No name given for the decrypted drive')
-            exit(0)
+            if len(name) == 0:
+                print('No name given for the decrypted drive')
+                exit(0)
 
         mountpoints: list[str] = []
 
@@ -262,24 +262,27 @@ if __name__ == '__main__':
         print(mount_path)
         if device.is_encrypted:
             commands.extend((
-                ['mkdir', '--parents', mount_path],
-                ['cryptsetup', 'open', device.path, name],
-                ['mount', f'/dev/mapper/{name}', mount_path],
+                f'mkdir --parents {mount_path}',
+                f'cryptsetup open {device.path} {name}',
+                f'mount /dev/mapper/{name} {mount_path}',
                 ))
         else:
             commands.extend((
-                ['mkdir', '--parents', mount_path],
-                ['mount', device.path, mount_path],
+                f'mkdir --parents {mount_path}',
+                f'mount {device.path} {mount_path}',
                 ))
 
     print('Run')
 
-    joined_commands: str = ' ; '.join(
-        map(lambda command: ' '.join(command), commands)
-        )
+    joined_commands: str = ' ; '.join(commands)
 
-    raise_priviligies: str = 'pkexec'
-    final_command: str = f"{raise_priviligies} sh -c '{joined_commands}'"
+    if operation == 'mount' and device.is_encrypted:
+        raise_priviligies: str = 'sudo'
+        # TODO: make st a class of a floating window
+        final_command: str = f"st -e {raise_priviligies} sh -c '{joined_commands}'"
+    else:
+        raise_priviligies: str = 'pkexec'
+        final_command: str = f"{raise_priviligies} sh -c '{joined_commands}'"
 
     print(final_command)
-    # run(final_command)
+    run(final_command, shell = True)
