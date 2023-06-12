@@ -1,0 +1,4 @@
+#!/bin/sh
+
+notify-send --urgency=critical 'Asking for sudo password'
+sudo $@
