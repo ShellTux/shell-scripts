@@ -24,7 +24,7 @@ tmux new-session -d -s scratchpad -n Term "$(window $shell)" \; \
 	new-window -n nvtop "$(window nvtop)" \; \
 	new-window -n files "$(window ranger)" \; \
 	new-window -n Calc "$(window qalc)" \; \
-	new-window -n Music "$(window ncmcpp)" \; \
+	new-window -n Music "$(window ncmpcpp)" \; \
 	new-window -n Python "$(window bpython)" \; \
 	new-window -n Lua "$(window lua)" \; \
 	select-window -t 1
