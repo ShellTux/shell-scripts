@@ -1,0 +1,288 @@
+#!/usr/bin/env python
+
+from subprocess import check_output, Popen, PIPE, run
+from typing import Callable
+from sys import argv as cmd_arguments
+from math import log
+
+def stdout(command: list[str]) -> list[str]:
+    output = check_output(command).decode().strip().split('\n')
+    output = list(filter(lambda string: len(string) > 0, output))
+    return output
+
+def convert_bytes(bytes: int) -> str:
+    units = {
+            'bytes': 0,
+            'KiB': 1,
+            'MiB': 2,
+            'GiB': 3,
+            'TiB': 4
+            }
+    unit = 'bytes'
+    if bytes > 0:
+        exponent = min(int(log(bytes, 1024)), len(units) - 1)
+        quotient = float(bytes) / 1024**exponent
+        unit = list(units.keys())[list(units.values()).index(exponent)]
+        return '{:.2f} {}'.format(quotient, unit)
+    return '0B'
+
+class Device:
+    def __init__(self, *, path = '', name = '', label = '', size = '', \
+            type = '', fstype = '', mountpoints = '') -> None:
+        self.path: str = path
+        self.name: str = name
+        self.label: str = label
+        self.size: int = int(size)
+        self.type: str = type
+        self.fstype: str = fstype
+        self.mountpoints: list[str] = list(
+                filter(
+                    lambda string: len(string) > 0,
+                    mountpoints.split(r'\x0a')
+                    )
+                )
+        self.is_encrypted: bool = fstype in ['crypto_LUKS'] \
+                or type in ['crypt']
+
+    def __str__(self) -> str:
+        return f'''{self.name}:
+  : {self.is_encrypted},
+  path: {self.path},
+  name: {self.name},
+  label: {self.label},
+  size: {convert_bytes(self.size)},
+  type: {self.type},
+  fstype: {self.fstype},
+  mountpoints: {self.mountpoints}
+                '''
+
+class Table:
+    def __init__(self, devices: list[Device] = []) -> None:
+        self.devices: list[Device] = devices
+
+    def is_empty(self) -> bool:
+        return len(self.devices) == 0
+
+    def gen(self):
+        FIELDS: str = 'PATH,NAME,LABEL,SIZE,TYPE,FSTYPE,MOUNTPOINTS'
+        amount_fields: int = len(FIELDS.split(','))
+        output = stdout(
+                ['lsblk',
+                 '--bytes',
+                 '--inverse',
+                 '--nodeps',
+                 '--raw',
+                 '--output',
+                 FIELDS])
+
+        for line in output[1:]:
+            fields = [ '' for _ in range(amount_fields) ]
+
+            for index, field in enumerate(line.split(' ')):
+                if len(field) <= 0:
+                    continue
+
+                fields[index] = field.replace(r'\x20', ' ')
+
+            device = Device(
+                    path = fields[0],
+                    name = fields[1],
+                    label = fields[2],
+                    size = fields[3],
+                    type = fields[4],
+                    fstype = fields[5],
+                    mountpoints = fields[6],
+                    )
+
+            if device.type in ['disk', 'rom']:
+                continue
+
+            self.devices.append(device)
+
+    def print(self) -> None:
+        for device in self.devices:
+            print(device)
+
+    def append(self, device: Device) -> None:
+        self.devices.append(device)
+
+    def filter(self, filter_function: Callable[[Device], bool]):
+        return Table(list(filter(filter_function, self.devices)))
+
+    def __str__(self) -> str:
+        text: str = ''
+        for device in self.devices:
+            text += ' ' if device.is_encrypted else '  '
+            text += device.path + '\t'
+            text += device.fstype + '\t'
+            text += convert_bytes(device.size) + '\t'
+            text += device.label
+            text += '\n'
+        return text
+
+    def get_device_by_path(self, path: str) -> Device | None:
+        for device in self.devices:
+            if device.path == path:
+                return device
+
+def mount_filter(device: Device) -> bool:
+    if len(device.mountpoints) != 0:
+        return False
+
+    return True
+
+def unmount_filter(device: Device) -> bool:
+    if any([mount in device.mountpoints for mount in ['/', '/home', '/boot']]):
+        return False
+
+    if len(device.mountpoints) == 0:
+        return False
+
+    return True
+
+def launcher(*, prompt: str, pipe: str) -> str:
+    menu_command = [
+            'bemenu',
+            '--ignorecase',
+            '--list=10',
+            f'--prompt={prompt}',
+            '--wrap',
+            '--fn=Fira Code 16'
+            ]
+
+    output: str | None = None
+    with Popen(menu_command, stdin=PIPE, stdout=PIPE) as process:
+        if process.stdin is not None:
+            process.stdin.write(pipe.encode())
+            process.stdin.close()
+
+        if process.stdout is not None:
+            output = process.stdout.read().decode().strip()
+
+    return '' if output is None else output
+
+if __name__ == '__main__':
+    table: Table = Table()
+    table.gen()
+
+    if len(cmd_arguments) <= 1:
+        print('Provide arguments: mount, unmount')
+        exit(1)
+
+    operation: str = cmd_arguments[-1]
+
+    argument_to_filter = {
+            'mount': mount_filter,
+            'unmount': unmount_filter,
+            }
+
+    if not argument_to_filter.get(operation):
+        print(f'Invalid argument {operation}')
+        exit(1)
+
+    filtered_table: Table = table.filter(argument_to_filter[operation])
+
+    if filtered_table.is_empty():
+        print(f'No devices to {operation}')
+        exit(0)
+
+    prompt: str = 'Unmount: ' if operation == 'unmount' else 'Mount: '
+
+    menu_command = ['wofi',
+                    '--dmenu',
+                    '--insensitive',
+                    f'--prompt={prompt}']
+
+
+    device: Device | None = None
+    mount_path: str = launcher(prompt = prompt, pipe = str(filtered_table)) \
+            .split('\t')[0].strip().split(' ')[-1]
+    device = filtered_table.get_device_by_path(mount_path)
+
+    if device is None:
+        print('No device given')
+        exit(0)
+    else:
+        print(device)
+
+    commands: list[str] = []
+
+    if operation == 'unmount':
+        commands.append(f'umount {device.path}')
+
+        if device.is_encrypted:
+            commands.append(f'cryptsetup close {device.name}')
+
+    elif operation == 'mount':
+        name: str = ''
+        if device.is_encrypted:
+            name = launcher(prompt = 'Enter a name for the decrypted drive: ',
+                            pipe = '\n'.join((
+                                'encrypted_usb',
+                                ))
+                            ).replace(' ', '_')
+
+            if len(name) == 0:
+                print('No name given for the decrypted drive')
+                exit(0)
+
+        mountpoints: list[str] = []
+
+        if device.is_encrypted:
+            mountpoints.extend([
+                f'/mnt/{name}',
+                f'/media/{name}',
+                ])
+
+        if len(device.label) > 0:
+            mountpoints.extend([
+                f'/mnt/{device.label}',
+                f'/media/{device.label}',
+                ])
+
+        mountpoints.extend([
+            f'/mnt/{device.name}',
+            f'/media/{device.name}',
+            ])
+
+        mountpoints \
+                .extend(stdout(['find', '/mnt', '-type', 'd']))
+
+        mountpoints \
+                .extend(stdout(['find', '/', '-maxdepth', '1', '-type', 'd']))
+
+        mount_path: str = launcher(prompt = 'Select partition: ',
+                 pipe = '\n'.join(mountpoints)
+                 )
+
+        if len(mount_path) == 0:
+            print('No path given to mount the drive')
+            exit(0)
+
+        print(mount_path)
+        if device.is_encrypted:
+            commands.extend((
+                f'mkdir --parents {mount_path}',
+                f'cryptsetup open {device.path} {name}',
+                f'mount /dev/mapper/{name} {mount_path}',
+                ))
+        else:
+            commands.extend((
+                f'mkdir --parents {mount_path}',
+                f'mount {device.path} {mount_path}',
+                ))
+
+    print('Run')
+
+    joined_commands: str = ' ; '.join(commands)
+
+    if operation == 'mount' and device.is_encrypted:
+        raise_priviligies: str = 'sudo'
+        # TODO: make st a class of a floating window
+        final_command: str = f"st -e {raise_priviligies} sh -c '{joined_commands}'"
+    else:
+        raise_priviligies: str = 'pkexec'
+        final_command: str = f"{raise_priviligies} sh -c '{joined_commands}'"
+
+    print(final_command)
+    run(final_command, shell = True)
