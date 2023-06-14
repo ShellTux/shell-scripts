@@ -1,6 +1,4 @@
 /*
-!/README.md
-!/.gitignore
 
 !/arch-wiki
 !/change-volume
@@ -10,6 +8,7 @@
 !/dunst-espeak-normal
 !/grub-playtune
 !/layoutmenu.sh
+!/Makefile
 !/mountmenu
 !/mpdnotify
 !/notify-music
@@ -50,3 +49,6 @@
 !/wallpaperLoop
 !/waybar-autoreload
 !/wl-clipboard-history
+
+!**/README.md
+!/.gitignore

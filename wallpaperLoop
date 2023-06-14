@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Dependencies:
+# - feh
+# - swww
+
 time_seconds=600
 
 case "$XDG_CURRENT_DESKTOP" in
