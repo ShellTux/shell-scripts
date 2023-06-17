@@ -58,13 +58,13 @@ case $BLOCK_BUTTON in
         3) mpc toggle ;; #pulsemixer || pavucontrol;;
 	4) scratchpad --command "$control_panel" ;; # pulsemixer || pavucontrol
 	7) scratchpad --terminal st --command "ncmpcpp --screen visualizer" ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
-	':') change_volume 5 + ;; # Scroll up
-	';') change_volume 5 - ;; # Scroll down
-	'<') mpc volume +5 ;; # Shift + Scroll up
-	'=') mpc volume -5 ;; # Shift + Scroll down
-	'>') change_volume 1 + ;; # Ctrl + Scroll up
-	'?') change_volume 1 -;; # Ctrl + Scroll down
+	9) scratchpad --terminal "$TERMINAL" --command "$EDITOR $0";;
+	10) change_volume 5 + ;; # Scroll up
+	11) change_volume 5 - ;; # Scroll down
+	12) mpc volume +5 ;; # Shift + Scroll up
+	13) mpc volume -5 ;; # Shift + Scroll down
+	14) change_volume 1 + ;; # Ctrl + Scroll up
+	15) change_volume 1 -;; # Ctrl + Scroll down
 esac
 
 vol=$(get_volume)
