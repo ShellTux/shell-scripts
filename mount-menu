@@ -184,6 +184,7 @@ if __name__ == '__main__':
 
     if filtered_table.is_empty():
         print(f'No devices to {operation}')
+        run(f"notify-send 'No devices to {operation}'", shell = True)
         exit(0)
 
     prompt: str = 'Unmount: ' if operation == 'unmount' else 'Mount: '
