@@ -1,7 +1,7 @@
 #!/bin/sh
 
-progress="$(mpc status | awk '(NR==2) { print $4 }' | sed 's/[()]//g;s/%//')"
-message="$(mpc status | sed 's/playing/  /;s/paused/  /')
+progress="$(mpc status | awk 'NR==2 { gsub(/[(%)]/,""); print $4 }')"
+message="$(mpc status | sed 's/playing/  /;s/paused/  /;3s/ \{2,\}/\n/g')
 
 $(mpc stats)"
 
