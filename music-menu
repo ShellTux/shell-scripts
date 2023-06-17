@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Check if running in a terminal
+if [ -t 0 ]
+then
+	# Running in a terminal
+	selected_song=$(mpc playlist | fzf --reverse)
+else
+	case $XDG_SESSION_TYPE in
+		wayland)
+			selected_song=$(mpc playlist \
+				| wofi --show dmenu --prompt="Select a song")
+			;;
+		x11)
+			selected_song=$(mpc playlist \
+				| dmenu -p "Select a song: ")
+			;;
+
+		esac
+fi
+
+[ "$selected_song" = "" ] && exit 0
+
+# Get the index of the selected song
+index=$(echo "$(mpc playlist)" | grep -n "$selected_song" | cut -d ':' -f1)
+
+# Play the selected song using mpc
+mpc play "$index"

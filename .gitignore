@@ -9,7 +9,8 @@
 !/grub-playtune
 !/layoutmenu.sh
 !/Makefile
-!/mountmenu
+!/mount-menu
+!/music-menu
 !/mpdnotify
 !/notify-music
 !/notify-sudo
