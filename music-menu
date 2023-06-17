@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Dependencies
+# fzf
+# mpc
+# ffmpegthumbnailer
+# viu
+# wofi
+# dmenu
+
 fzf_menu() {
 	echo "$(mpc playlist --format "%title%\t$HOME/Música/%file%" | fzf --reverse --delimiter='\t' --with-nth=1 --preview='ffmpegthumbnailer -i "$(echo "{}" | cut -f2 | sed "s/.$//")" -c png -m -s 512 -o - 2>/dev/null | viu -w $((LINES + 20)) -b -' | cut -f1)"
 }
