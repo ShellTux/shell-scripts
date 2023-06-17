@@ -6,6 +6,7 @@
 !/dunst-espeak-critical
 !/dunst-espeak-low
 !/dunst-espeak-normal
+!/emoji-menu
 !/grub-playtune
 !/layoutmenu.sh
 !/Makefile
@@ -38,8 +39,6 @@
 !/scratchpad
 !/screenshot
 !/scrolling
-!/select-emoji
-!/select-music
 !/startWayland
 !/startX
 !/texclear
