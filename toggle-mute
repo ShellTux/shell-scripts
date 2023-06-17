@@ -1,4 +1,8 @@
 #!/bin/sh
 
+# Dependencies
+# pulsemixer
+# wireplumber
+
 [ "$(command -v pulsemixer)" ] && pulsemixer --toggle-mute && return
 [ "$(command -v wpctl)" ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && return

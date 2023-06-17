@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
 
+# Dependencies
+# figlet
+# lolcat
+# libnotify
+
 counter=20
 
 [ ! "$1" = "" ] && counter=$1

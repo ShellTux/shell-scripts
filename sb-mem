@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Dependecies
+# libnotify
+
 LC_NUMERIC="en_US.UTF-8"
 usage="$(printf %02.0f "$(free | awk '/^Mem/ { print $3 "/" $2 "*100" }' | bc -l )")"
 

@@ -1,9 +1,9 @@
 #!/bin/sh
 #
 # Dependecies:
-# 	- neofetch
-# 	- newsboat
-# 	- dunst
+# neofetch
+# newsboat
+# dunst
 
 [ -n "$1" ] && BLOCK_BUTTON=$1
 

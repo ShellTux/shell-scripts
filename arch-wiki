@@ -1,5 +1,13 @@
 #!/bin/sh
 
+# Dependencies
+# arch-wiki-docs
+# libnotify
+# dmenu
+# wofi
+# fzf
+# firefox
+
 if [ "$(pacman -Q arch-wiki-docs arch-wiki-lite 2>/dev/null)" = "" ]
 then
       notify-send "Install at least one of the 2 packages:" "\- arch-wiki-docs 

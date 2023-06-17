@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Dependencies
+# libnotify
+# pulsemixer
+# wireplumber
+# mpc
+
 [ "$1" = "music" ] && notify-music
 
 change_volume() {
