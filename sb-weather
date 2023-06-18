@@ -2,8 +2,7 @@
 
 weatherreport="${XDG_DATA_HOME:-$HOME/.local/share}/weatherreport"
 getforecast() {
-	curl -sf "wttr.in/" \
-		"$(echo "$LOCATION" | sed 's/ /%20/g')" > "$weatherreport" || exit 1
+	curl -sf wttr.in > "$weatherreport" || exit 1
 	}
 getweather() {
 	humidity="$(sed '16q;d' "$weatherreport" \
