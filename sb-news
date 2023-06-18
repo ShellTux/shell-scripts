@@ -20,6 +20,15 @@ case $BLOCK_BUTTON in
 	9) "$TERMINAL" -e "$EDITOR" "$0" ;;
 esac
 
+
+urls_file="${XDG_CONFIG_HOME:-HOME/.config}/newsboat/urls"
+if [ ! -f "$urls_file" ] \
+	|| [ "$(wc --lines "$urls_file" | cut --delimiter=' ' --fields=1)" = "0" ]
+then
+	printf ''
+	exit 0
+fi
+
 unread="$(newsboat -x print-unread | awk '{print $1}')"
 if [ ! "$unread" = 0 ];
 then
