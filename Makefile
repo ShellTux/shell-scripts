@@ -23,6 +23,7 @@ AUR_DEPENDENCIES = \
 		   swww
 
 install: dependencies
+	mkdir -p ~/.cache/proc
 
 dependencies:
 	$(PKG_MANAGER) $(DEPENDENCIES)
