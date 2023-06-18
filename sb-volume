@@ -55,14 +55,14 @@ case $BLOCK_BUTTON in
 \- <b>Shift + Scroll Down</b>, decrease mpc volume by 5.
 \- <b>Ctrl + Scroll Up</b>, increase volume by 1.
 \- <b>Ctrl + Scroll Down</b>, decrease volume by 1." ;;
-        3) mpc toggle ;; #pulsemixer || pavucontrol;;
+        3) mpc --quiet toggle ;; #pulsemixer || pavucontrol;;
 	4) scratchpad --command "$control_panel" ;; # pulsemixer || pavucontrol
 	7) scratchpad --terminal st --command "ncmpcpp --screen visualizer" ;;
 	9) scratchpad --terminal "$TERMINAL" --command "$EDITOR $0";;
 	10) change_volume 5 + ;; # Scroll up
 	11) change_volume 5 - ;; # Scroll down
-	12) mpc volume +5 ;; # Shift + Scroll up
-	13) mpc volume -5 ;; # Shift + Scroll down
+	12) mpc --quiet volume +5 ;; # Shift + Scroll up
+	13) mpc --quiet volume -5 ;; # Shift + Scroll down
 	14) change_volume 1 + ;; # Ctrl + Scroll up
 	15) change_volume 1 -;; # Ctrl + Scroll down
 esac
