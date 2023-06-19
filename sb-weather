@@ -43,8 +43,14 @@ case $BLOCK_BUTTON in
 		"minimum Temperature (ºC) and maximum Temperature (ºC).
 \- <b>Shift + Left Click</b>, to open weather forecast.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
-	4) scratchpad --title Weather --command "$PAGER -Srf $weatherreport" ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	4) scratchpad \
+		--title Weather \
+		--columns 126 \
+		--command "$PAGER -Srf $weatherreport" ;;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 showweather

@@ -14,7 +14,10 @@ $(cal --color=always | sed 's/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	4) notify-send "Calendar" "$(date '+%A, %d de %B de %Y')
 $(cal -3 --color=always | sed 's/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/')";;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 printf "[ %s]\n" "$(date '+%a, %d/%m/%Y')"

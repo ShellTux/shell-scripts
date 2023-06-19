@@ -25,8 +25,11 @@ Upload: $(echo \
 \- <b>Left Click</b>, shows more information about network traffic.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
-	4) "$TERMINAL" -e watch -n 1 netstat -tulpn ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	4) scratchpad --title 'Network Traffic' --command 'watch -n 1 netstat -tulpn' & ;;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 update() {

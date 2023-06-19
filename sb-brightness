@@ -14,7 +14,10 @@ case $BLOCK_BUTTON in
 \- <b>Ctrl + Right Click</b> to edit this module.
 \- <b>Scroll Up</b>, increase brightness 5.
 \- <b>Scroll Down</b>, decrease brightness 5." ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 	# Changing brightness has some bugs
 	# ':') brightnessctl set +5% ;; # Scroll up
 	# ';') brightnessctl set 5%- --min-value 1 ;; # Scroll down

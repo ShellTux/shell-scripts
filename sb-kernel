@@ -18,7 +18,10 @@ Operation System: $(uname --operating-system)" ;;
 \- <b>Left Click</b>, shows more information about installed kernel.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0" ;;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 printf "[ %s]\n" "$(uname --kernel-release)"

@@ -24,7 +24,10 @@ case $BLOCK_BUTTON in
 \- <b>Shift + Left Click</b>, shows file system space usage.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	4) notify-send "$(df -h)";;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 printf "[%s:%s %s%%]\n" \

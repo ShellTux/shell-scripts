@@ -16,7 +16,10 @@ case "$BLOCK_BUTTON" in
 \<b>Shift + Left Click</b>, opens nmtui.
 \<b>Ctrl + Right Click</b> to edit this module." ;;
 	4) scratchpad --title "Network" --command "nmtui" ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0" ;;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 interface="$(ip address | awk '/state UP/ {print $2}' | sed s/://)"

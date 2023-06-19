@@ -20,7 +20,10 @@ case $BLOCK_BUTTON in
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	3) scratchpad --title Update --command "doas pacman -Syy" ;;
 	4) scratchpad --title Upgrade --command "sb-popupgrade" ;;
-	9) "$TERMINAL" -e "$EDITOR" "$0" ;;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 [ ! "$pkgs" = 0 ] && [ "$(neofetch wm | awk '{print $2}')" = "dwm" ] && \

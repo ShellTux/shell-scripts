@@ -20,7 +20,10 @@ case $BLOCK_BUTTON in
 \- <b>Shift + Left Click</b>, opens htop.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	4) setsid -f "$TERMINAL" -e htop;;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 printf "[ $(free -h | awk '/^Mem/ { print $3 "/" $2 }' | sed s/i//g) %s]\n" "$usage%"

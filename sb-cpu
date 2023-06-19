@@ -23,7 +23,10 @@ case $BLOCK_BUTTON in
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	4) scratchpad --command "htop" &;;
 	7) scratchpad --command "nvtop" &;;
-	9) "$TERMINAL" -e "$EDITOR" "$0";;
+	9) scratchpad \
+		--title "Edit $(basename "$0")" \
+		--working-directory "$(dirname "$0")" \
+		--command "$EDITOR $0" ;;
 esac
 
 printf "[ %02d%% %.0fºC]\n" "$usage" \
