@@ -2,6 +2,20 @@
 
 # shellcheck disable=SC2086
 
+usage() {
+	echo "Usage: $(basename "$0") 'command'"
+	echo " -h, --help                            Print this help page"
+	echo " -c, --class             <class name>  Change window class"
+	echo " -n, --name              <name>        Change window instance name"
+	echo " -t, --title             <title>       Change window title"
+	echo " -L, --lines             <lines>       Change terminal amount of lines"
+	echo " -C, --columns           <columns>     Change terminal amount of columns"
+	echo " -e, --command           <command>     Command to be run on the new " \
+		"terminal"
+	echo " -T, --terminal          <terminal>    Change terminal to be used"
+	echo " -w, --working-directory <directory>   Change working directory"
+}
+
 # Default values
 class="Scratchpad"
 command="$SHELL"
@@ -28,6 +42,10 @@ do
 		-e | --command)  command=$2 ; shift ; shift ;;
 		-T | --terminal) scratchpad_terminal=$2 ; shift ; shift ;;
 		-w | --working-directory) working_directory=$2 ; shift ; shift ;;
+		-h | --help)
+			usage
+			exit 0
+			;;
 	esac
 done
 
