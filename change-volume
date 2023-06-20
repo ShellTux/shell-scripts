@@ -6,5 +6,6 @@
 
 # $1: quantity in %. ex.: 5, 1, 10
 # $2: - or +
-[ "$(command -v pulsemixer)" ] && pulsemixer --change-volume "$2$1" && return
+
 [ "$(command -v wpctl)" ] && wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" && return
+[ "$(command -v pulsemixer)" ] && pulsemixer --change-volume "$2$1" && return
