@@ -1,24 +1,16 @@
 #!/bin/sh
-swww_command="swww img --transition-type any"
-feh_command="feh --no-fehbg --bg-fill"
-wallpaper_loop_name="wallpaperLoop"
 
-case "$XDG_SESSION_TYPE" in
-	x11)
-		cmd="$feh_command"
-		;;
-	wayland)
-		cmd="$swww_command"
-		;;
-esac
+WALLPAPER="/tmp/wallpaper.txt"
+DAEMON="wallpaperLoop"
+DAEMON_PID="$(pgrep "$DAEMON")"
 
-[ -f "$1" ] && $cmd "$1" && exit 0
+if [ -f "$1" ]
+then
+	echo "$1" > "$WALLPAPER"
+	kill -HUP "$DAEMON_PID"
+	exit 0
+fi
 
 case "$1" in
-	next)
-		pgrep "$wallpaper_loop_name" \
-			| xargs ps --no-headers -o pid,command --ppid \
-			| awk '/sleep/ {print $1}' \
-			| xargs kill
-		;;
+	next) kill -USR1 "$DAEMON_PID" ;;
 esac

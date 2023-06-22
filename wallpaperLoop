@@ -4,36 +4,44 @@
 # - feh
 # - swww
 
-time_seconds=600
+DIR="$HOME/Imagens/Wallpapers"
+WALLPAPER="/tmp/wallpaper.txt"
+SLEEPTIME=600
+PID=""
 
-case "$XDG_CURRENT_DESKTOP" in
-	"Hyprland")
-		printf "Hyprland Wallpaper Loop\n"
-		while true
-		do
-			sleep $time_seconds
-			swww img \
-				--transition-type any \
-				"$(find ~/Imagens/Wallpapers \
-				-maxdepth 1 \
-				-type f \
-				-name "*.jpg" -o \
-				-name "*.png" -o \
-				-name "*.gif" \
-				| shuf \
-				| head -1)"
-		done
-		;;
+change_wallpaper() {
+	find "$DIR" \
+		-maxdepth 1 \
+		-type f \
+		-name "*.jpg" -o \
+		-name "*.png" -o \
+		-name "*.gif" \
+		| shuf --head-count=1 > "$WALLPAPER"
+}
 
-	"X-Generic")
-		printf "Xorg Wallpaper Loop\n"
-		while true
-		do
-			feh \
-				--no-fehbg \
-				--bg-fill \
-				--randomize "$HOME"/Imagens/Wallpapers
-			sleep $time_seconds
-		done
-		;;
+update_wallpaper() {
+	wallpaper_file="$(head -1 "$WALLPAPER")"
+
+	case "$XDG_SESSION_TYPE" in
+		wayland) swww img --transition-type any "$wallpaper_file" ;;
+		x11)     feh --no-fehbg --bg-fill "$wallpaper_file" ;;
+	esac
+
+	notify-send --icon="$wallpaper_file" 'Wallpaper set'
+}
+
+trap 'change_wallpaper; kill "$PID"' USR1
+trap 'kill "$PID"' HUP
+
+case "$XDG_SESSION_TYPE" in
+	wayland) printf 'Wayland Wallpaper Loop\n' ;;
+	x11)     printf 'X11 Wallpaper Loop\n' ;;
 esac
+
+while true
+do
+	update_wallpaper
+	sleep $SLEEPTIME &
+	PID=$!
+	wait $PID || true
+done
