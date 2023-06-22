@@ -43,5 +43,5 @@ do
 	update_wallpaper
 	sleep $SLEEPTIME &
 	PID=$!
-	wait $PID || true
+	wait $PID && change_wallpaper
 done
