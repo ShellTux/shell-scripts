@@ -1,7 +1,9 @@
 #!/bin/sh
+# Dependencies
+# libnotify
 
 pkgs="$(pacman -Qu | wc -l)"
-[ "$pkgs" -eq 0 ] && msg="All packages are up to date" || msg="$(pacman -Qu)"
+[ "$pkgs" = 0 ] && msg="All packages are up to date" || msg="$(pacman -Qu)"
 
 [ -n "$1" ] && BLOCK_BUTTON=$1
 
@@ -19,16 +21,13 @@ case $BLOCK_BUTTON in
 \- <b>Shift + Left Click</b>, opens sb-popupgrade.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	3) scratchpad --title Update --command "doas pacman -Syy" ;;
-	4) scratchpad --title Upgrade --command "sb-popupgrade" ;;
+	4) scratchpad --wait --title Upgrade --command "sb-popupgrade" ;;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \
 		--command "$EDITOR $0" ;;
 esac
 
-[ ! "$pkgs" = 0 ] && [ "$(neofetch wm | awk '{print $2}')" = "dwm" ] && \
-	printf "[ %d]\n" "$pkgs"
-[ "$(neofetch de | awk '{print $2}')" = "xmonad" ] && printf "%s\n" "$pkgs"
+pkgs="$(pacman -Qu | wc -l)"
 
-unset pkgs
-unset msg
+[ ! "$pkgs" = 0 ] && printf '[ %d]\n' "$pkgs"
