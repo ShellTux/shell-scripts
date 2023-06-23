@@ -1,5 +1,4 @@
 #!/bin/sh
-
 # shellcheck disable=SC2086
 
 usage() {
@@ -13,17 +12,19 @@ usage() {
 	echo " -e, --command           <command>     Command to be run on the new " \
 		"terminal"
 	echo " -T, --terminal          <terminal>    Change terminal to be used"
-	echo " -w, --working-directory <directory>   Change working directory"
+	echo " -W, --working-directory <directory>   Change working directory"
+	echo " -w, --wait                            Wait for the scratchpad to terminate"
 }
 
 # Default values
-class="Scratchpad"
+class='Scratchpad'
 command="$SHELL"
-name="Scratchpad"
+name='Scratchpad'
 resolution="$(xrandr | awk '/\*/ {print $1}')"
 scratchpad_terminal="$TERMINAL"
-title="Scratchpad"
+title='Scratchpad'
 working_directory="$HOME"
+setsid_opts='--fork'
 
 case $resolution in
 	"1366x768")  lines=24 ; columns=100 ; width=1000 ; height=600 ;;
@@ -41,7 +42,8 @@ do
 		-C | --columns)  columns=$2 ; shift ; shift ;;
 		-e | --command)  command=$2 ; shift ; shift ;;
 		-T | --terminal) scratchpad_terminal=$2 ; shift ; shift ;;
-		-w | --working-directory) working_directory=$2 ; shift ; shift ;;
+		-W | --working-directory) working_directory=$2 ; shift ; shift ;;
+		-w | --wait) setsid_opts="--wait $setsid_opts" ; shift ;;
 		-h | --help)
 			usage
 			exit 0
@@ -62,15 +64,15 @@ done
 
 cd "$working_directory" || exit 1
 case $scratchpad_terminal in
-	"alacritty") setsid \
-		-f alacritty \
+	alacritty) setsid "$setsid_opts" \
+		alacritty \
 		--class "$class,$name" \
 		--title "$title" \
 		--option "window.dimensions.lines=$lines" \
 		--option "window.dimensions.columns=$columns" \
 		--command $command ;;
-	"kitty")     setsid \
-		-f kitty \
+	kitty)     setsid "$setsid_opts" \
+		kitty \
 		--class "$class" \
 		--name "$name" \
 		--title "$title" \
@@ -78,8 +80,8 @@ case $scratchpad_terminal in
 		--override "initial_window_width $width" \
 		--override "initial_window_height $height" \
 		$command;;
-	"st")        setsid \
-		-f st \
+	st)        setsid $setsid_opts \
+		st \
 		-c "$class" \
 		-t "$title" \
 		-n "$name" \
