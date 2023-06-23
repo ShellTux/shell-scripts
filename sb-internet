@@ -15,7 +15,7 @@ case "$BLOCK_BUTTON" in
 \<b>Middle Click</b>, shows this help notification.
 \<b>Shift + Left Click</b>, opens nmtui.
 \<b>Ctrl + Right Click</b> to edit this module." ;;
-	4) scratchpad --title "Network" --command "nmtui" ;;
+	4) scratchpad --wait --title "Network" --command "nmtui" ;;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \
