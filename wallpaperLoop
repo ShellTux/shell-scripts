@@ -27,7 +27,7 @@ update_wallpaper() {
 		x11)     feh --no-fehbg --bg-fill "$wallpaper_file" ;;
 	esac
 
-	notify-send --icon="$wallpaper_file" 'Wallpaper set'
+	notify-send --icon="$wallpaper_file" --urgency=low 'Wallpaper set'
 }
 
 trap 'change_wallpaper; kill "$PID"' USR1
@@ -37,6 +37,8 @@ case "$XDG_SESSION_TYPE" in
 	wayland) printf 'Wayland Wallpaper Loop\n' ;;
 	x11)     printf 'X11 Wallpaper Loop\n' ;;
 esac
+
+[ ! -f "$WALLPAPER" ] && change_wallpaper
 
 while true
 do
