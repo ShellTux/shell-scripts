@@ -1,9 +1,7 @@
 #!/bin/sh
 
-for command in \
-	'startX dwm' \
-	'startX awesome' \
-	'startWayland hyprland'
-do
-	echo "$command"
-done | shuf -n 1 | sh
+case $(seq 1 3 | shuf -n 1) in
+	1) startX dwm ;;
+	2) startX awesome ;;
+	3) startWayland hyprland ;;
+esac
