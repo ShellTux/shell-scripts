@@ -27,7 +27,9 @@ update_wallpaper() {
 		x11)     feh --no-fehbg --bg-fill "$wallpaper_file" ;;
 	esac
 
-	notify-send --icon="$wallpaper_file" --urgency=low 'Wallpaper set'
+	notify-send \
+		--icon="$wallpaper_file" \
+		--urgency=low "Wallpaper set: $(basename "$wallpaper_file")"
 }
 
 trap 'change_wallpaper; kill "$PID"' USR1
