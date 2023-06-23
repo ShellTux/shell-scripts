@@ -18,10 +18,10 @@ case $BLOCK_BUTTON in
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Right Click</b>, opens a terminal ($TERMINAL)" \
 	" and force sync of local database of packages.
-\- <b>Shift + Left Click</b>, opens sb-popupgrade.
+\- <b>Shift + Left Click</b>, opens arch-linux-upgrade.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	3) scratchpad --title Update --command "doas pacman -Syy" ;;
-	4) scratchpad --wait --title Upgrade --command "sb-popupgrade" ;;
+	4) scratchpad --wait --title Upgrade --command "arch-linux-upgrade" ;;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \

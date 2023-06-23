@@ -46,7 +46,7 @@ Note: Only works on `Arch Linux`
 - sb-network-traffic
 - sb-news
 - sb-packages
-- sb-popupgrade
+- arch-linux-upgrade
 - sb-volume
 - sb-weather
 - scratchpad, launch scratchpad for X11

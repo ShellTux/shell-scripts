@@ -33,7 +33,7 @@
 !/sb-network-traffic
 !/sb-news
 !/sb-packages
-!/sb-popupgrade
+!/arch-linux-upgrade
 !/sb-volume
 !/sb-weather
 !/scratchpad
