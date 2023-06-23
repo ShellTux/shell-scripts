@@ -1,0 +1,9 @@
+#!/bin/sh
+
+for command in \
+	'startX dwm' \
+	'startX awesome' \
+	'startWayland hyprland'
+do
+	echo "$command"
+done | shuf -n 1 | sh
