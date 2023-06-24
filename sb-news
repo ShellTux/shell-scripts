@@ -16,7 +16,7 @@ case $BLOCK_BUTTON in
 \- <b>Ctrl + Right Click</b> to edit this module.
 <b><span color=\"red\">Note:</span></b>"\
 	"Only one instance of newsboat (including updates) may be running at a time." ;;
-	4) scratchpad --title News --command newsboat ;;
+	4) scratchpad --wait --title News --command newsboat ;;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \
