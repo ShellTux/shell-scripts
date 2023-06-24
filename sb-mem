@@ -19,7 +19,7 @@ case $BLOCK_BUTTON in
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, opens htop.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
-	4) setsid -f "$TERMINAL" -e htop;;
+	4) scratchpad --title htop --command "htop";;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \

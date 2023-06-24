@@ -21,8 +21,8 @@ case $BLOCK_BUTTON in
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, opens htop.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
-	4) scratchpad --command "htop" &;;
-	7) scratchpad --command "nvtop" &;;
+	4) scratchpad --title htop --command "htop";;
+	7) scratchpad --title nvtop --command "nvtop";;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \
