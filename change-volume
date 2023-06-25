@@ -7,5 +7,38 @@
 # $1: quantity in %. ex.: 5, 1, 10
 # $2: - or +
 
-[ "$(command -v wpctl)" ] && wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" && return
-[ "$(command -v pulsemixer)" ] && pulsemixer --change-volume "$2$1" && return
+get_volume () {
+      [ "$(command -v wpctl)" ] \
+	      && wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2*100}' \
+	      && return
+      [ "$(command -v pulsemixer)" ] \
+	      && pulsemixer --get-volume | awk '{print $1}' \
+	      && return
+}
+
+is_muted () {
+      [ "$(command -v wpctl)" ] \
+	      && [ ! "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep MUTED)" = "" ] \
+	      && echo 1 || echo 0 && return
+      [ "$(command -v pulsemixer)" ] \
+	      && pulsemixer --get-mute \
+	      && return
+}
+
+if [ "$(command -v wpctl)" ]
+then
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2"
+elif [ "$(command -v pulsemixer)" ]
+then
+	pulsemixer --change-volume "$2$1"
+fi
+
+appName='change-volume'
+msgTag='volume'
+volume="$(get_volume)"
+muted="$(is_muted)"
+dunstify --appname="$appName" \
+	--urgency=low \
+	--icon=audio-volume-high \
+	--hints=string:x-dunst-stack-tag:"$msgTag" \
+	--hints=int:value:"$volume" "Volume: ${volume}%"
