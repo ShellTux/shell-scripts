@@ -3,7 +3,6 @@
 !/arch-wiki
 !/change-volume
 !/counter
-!/dunst-espeak
 !/dunst-espeak-critical
 !/dunst-espeak-low
 !/dunst-espeak-normal
@@ -14,6 +13,7 @@
 !/mount-menu
 !/music-menu
 !/mpdnotify
+!/notification-sound
 !/notify-music
 !/notify-sudo
 !/onefetch-languages

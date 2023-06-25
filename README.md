@@ -28,6 +28,7 @@ Note: Only works on `Arch Linux`
 - mount-menu, python script to prompt the user to mount or unmount a drive
 - mpdnotify, watch for mpd track change and notify the current track to the notification server
 - music-menu, select a track on the mpd playlist
+- notifcation-sound, play a sound according to notification urgency
 - notify-music, notify current track to the notification server
 - notify-sudo, shell script sending a desktop notificaiton when running `sudo`
 - onefetch-languages, print every language for onefetch
