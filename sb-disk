@@ -1,4 +1,6 @@
 #!/bin/sh
+# Dependencies
+# libnotify
 
 location=${1:-/}
 [ -d "$location" ] || exit
@@ -9,22 +11,24 @@ case "$location" in
 	*) icon="";;
 esac
 
-usage_perc="$(df -h "$location" | awk '{if (NR==2) print $5}' | sed 's/%//')"
+usage_perc="$(df --output=pcent / | sed --quiet '2{s/%//;p}')"
 
 [ -n "$2" ] && BLOCK_BUTTON="$2"
 
 case $BLOCK_BUTTON in
 	1) notify-send \
-		-h "int:value:$usage_perc" \
+		--hint=int:value:"$usage_perc" \
 		"Estimated File Space Usage" \
-		"$(du -Sh --exclude="NAS" "$HOME" 2>&1 | sort -rh | head)";;
+		"$(du --separate-dirs --human-readable "$HOME" 2>&1 \
+		| sort --reverse --human-numeric-sort \
+		| head)";;
 	2) notify-send "Status Bar Module: disk " "\- Show disk usage.
 \- <b>Left Click</b>, shows top 10 directories that use the most space in home folder" \
 	" ($HOME).
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, shows file system space usage.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
-	4) notify-send "File System Space Usage" "$(df -h)";;
+	4) notify-send "File System Space Usage" "$(df --human-readable)";;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \
@@ -33,7 +37,7 @@ esac
 
 printf "[%s:%s %s%%]\n" \
 	"$icon" \
-	"$(df -h "$location" | awk '{if (NR==2) print $3 "/" $2}')" \
+	"$(df --human-readable "$location" | awk 'NR==2 {print $3 "/" $2}')" \
 	"$usage_perc"
 
 unset location
