@@ -4,7 +4,7 @@
 # pulsemixer
 # wireplumber
 
-# $1: quantity in %. ex.: 5, 1, 10
+# $1: quantity in %. ex.: 5, 1, 10 or to toggle mute: toggle-mute
 # $2: - or +
 
 get_volume () {
@@ -39,24 +39,29 @@ change_volume() {
 		&& return
 }
 
-if [ "$1" = "toggle-mute" ]
-then
-	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-	pulsemixer --toggle-mute
-elif [ "$(command -v wpctl)" ]
-then
-	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2"
-elif [ "$(command -v pulsemixer)" ]
-then
-	pulsemixer --change-volume "$2$1"
-fi
+case "$1" in
+	toggle-mute) toggle_mute ;;
+	*) change_volume "$1" "$2" ;;
+esac
 
 appName='change-volume'
 msgTag='volume'
 volume="$(get_volume)"
 muted="$(is_muted)"
+if [ "$muted" = 1 ]
+then
+	icon='audio-volume-muted'
+else
+	volume_level="$(echo "$volume" | awk '{ print sprintf("%.0f", $1/100*4) }')"
+	case "$volume_level" in
+		0) icon="audio-volume-low" ;;
+		1) icon="audio-volume-medium" ;;
+		2) icon="audio-volume-medium" ;;
+		3) icon="audio-volume-high" ;;
+	esac
+fi
 dunstify --appname="$appName" \
 	--urgency=low \
-	--icon=audio-volume-high \
+	--icon="$icon" \
 	--hints=string:x-dunst-stack-tag:"$msgTag" \
 	--hints=int:value:"$volume" "Volume: ${volume}%"
