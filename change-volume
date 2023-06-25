@@ -25,7 +25,25 @@ is_muted () {
 	      && return
 }
 
-if [ "$(command -v wpctl)" ]
+toggle_mute() {
+	[ "$(command -v wpctl)" ] && wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && return
+	[ "$(command -v pulsemixer)" ] && pulsemixer --toggle-mute && return
+}
+
+change_volume() {
+	[ "$(command -v wpctl)" ] \
+		&& wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" \
+		&& return
+	[ "$(command -v pulsemixer)" ] \
+		&& pulsemixer --change-volume "$2$1" \
+		&& return
+}
+
+if [ "$1" = "toggle-mute" ]
+then
+	wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+	pulsemixer --toggle-mute
+elif [ "$(command -v wpctl)" ]
 then
 	wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2"
 elif [ "$(command -v pulsemixer)" ]
