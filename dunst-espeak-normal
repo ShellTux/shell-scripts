@@ -1,3 +1,4 @@
 #!/bin/sh
 
+notify-send "path" "$PATH"
 notification-sound normal

@@ -24,7 +24,7 @@ case $BLOCK_BUTTON in
 esac
 
 
-urls_file="${XDG_CONFIG_HOME:-HOME/.config}/newsboat/urls"
+urls_file="${XDG_CONFIG_HOME:-$HOME/.config}/newsboat/urls"
 if [ ! -f "$urls_file" ] \
 	|| [ "$(wc --lines "$urls_file" | cut --delimiter=' ' --fields=1)" = "0" ]
 then
