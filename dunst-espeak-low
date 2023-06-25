@@ -1,4 +1,3 @@
 #!/bin/sh
 
-paplay --volume=39321 \
-	"${XDG_DATA_HOME:-$HOME/.local/share}/dunst/notification_sound_low.wav"
+dunst-espeak low
