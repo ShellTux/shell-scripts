@@ -4,6 +4,16 @@
 # brightnessctl
 # libnotify
 
+usage() {
+	echo "Usage: $(basename "$0") [amount] [+/-]"
+	echo "The amount is in percentage (do not include %)"
+	echo "amount   the amount to increase or decrease brightness" \
+		"(integer between 0 and 100)"
+	echo "Example: $(basename $0) 5 +"
+	echo "Example: $(basename $0) 5 -"
+	exit 1
+}
+
 get_brightness() {
 	brightnessctl | awk '/Current brightness/ {print $4}' | sed 's/[()%]//g'
 	return
@@ -11,12 +21,16 @@ get_brightness() {
 
 set_brightness() {
 	case $2 in
-		+) brightnessctl set "+$1%" ;;
-		-) brightnessctl set "$1%-" --min-value 1 ;;
+		+) brightnessctl set "+$1%" --quiet ;;
+		-) brightnessctl set "$1%-" --min-value 1 --quiet ;;
 	esac
 }
 
-set_brightness "$1" "$2"
+case "$1 $2" in
+	notify\ ) ;;
+	[0-9]\ [+-]) set_brightness "$1" "$2" ;;
+	*) usage ;;
+esac
 
 appName='change-brightness'
 msgTag='brightness'

@@ -9,6 +9,7 @@ LC_NUMERIC="en_US.UTF-8"
 brightness="$(brightnessctl | awk '(NR == 2){print $4}' | sed 's/(//;s/)//')"
 
 case $BLOCK_BUTTON in
+	1) change-brightness notify ;;
 	2) notify-send " Status Bar Module: Brightness" "\- Shows Brightness in %.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Ctrl + Right Click</b> to edit this module.

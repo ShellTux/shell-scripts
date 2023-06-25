@@ -5,8 +5,15 @@
 # wireplumber
 # libnotify
 
-# $1: quantity in %. ex.: 5, 1, 10 or to toggle mute: toggle-mute
-# $2: - or +
+usage() {
+	echo "Usage: $(basename "$0") [amount] [+/-]"
+	echo "The amount is in percentage (do not include %)"
+	echo "amount   the amount to increase or decrease volume" \
+		"(integer between 0 and 100)"
+	echo "Example: $(basename $0) 5 +"
+	echo "Example: $(basename $0) 5 -"
+	exit 1
+}
 
 get_volume () {
       [ "$(command -v wpctl)" ] \
@@ -31,7 +38,7 @@ toggle_mute() {
 	[ "$(command -v pulsemixer)" ] && pulsemixer --toggle-mute && return
 }
 
-change_volume() {
+set_volume() {
 	[ "$(command -v wpctl)" ] \
 		&& wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" \
 		&& return
@@ -40,9 +47,11 @@ change_volume() {
 		&& return
 }
 
-case "$1" in
-	toggle-mute) toggle_mute ;;
-	*) change_volume "$1" "$2" ;;
+case "$1 $2" in
+	notify\ ) ;;
+	[0-9]\ [+-]) set_volume "$1" "$2" ;;
+	toggle-mute\ ) toggle_mute ;;
+	*) usage ;;
 esac
 
 appName='change-volume'
