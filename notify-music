@@ -6,8 +6,12 @@ message="$(mpc status \
 
 $(mpc stats)"
 
-notify-send \
-	--app-name=music \
-	--urgency=low \
+appName='music'
+msgTag='music'
+notify-send 'MPD' "$message" \
+	--app-name="$appName" \
+	--hint=int:value:"$progress" \
+	--hint=string:x-dunst-stack-tag:"$msgTag" \
 	--icon="/tmp/cover.png" \
-	--hint="int:value:$progress" "MPD" "$message"
+	--urgency=low \
+	--replace-id=1061 # FIX: https://github.com/dunst-project/dunst/issues/1061
