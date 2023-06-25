@@ -8,15 +8,6 @@
 
 [ "$1" = "music" ] && notify-music
 
-change_volume() {
-      [ "$(command -v wpctl)" ] \
-	      && wpctl set-volume @DEFAULT_AUDIO_SINK@ "$1%$2" \
-	      && return
-      [ "$(command -v pulsemixer)" ] \
-	      && pulsemixer --change-volume "$2$1" \
-	      && return
-}
-
 get_volume () {
       [ "$(command -v wpctl)" ] \
 	      && wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2*100}' \
@@ -62,12 +53,12 @@ case $BLOCK_BUTTON in
 		--title "Edit $(basename "$0")" \
 		--working-directory "$(dirname "$0")" \
 		--command "$EDITOR $0" ;;
-	10) change_volume 5 + ;; # Scroll up
-	11) change_volume 5 - ;; # Scroll down
+	10) change-volume 5 + ;; # Scroll up
+	11) change-volume 5 - ;; # Scroll down
 	12) mpc --quiet volume +5 ;; # Shift + Scroll up
 	13) mpc --quiet volume -5 ;; # Shift + Scroll down
-	14) change_volume 1 + ;; # Ctrl + Scroll up
-	15) change_volume 1 -;; # Ctrl + Scroll down
+	14) change-volume 1 + ;; # Ctrl + Scroll up
+	15) change-volume 1 -;; # Ctrl + Scroll down
 esac
 
 vol=$(get_volume)
