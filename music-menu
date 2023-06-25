@@ -10,7 +10,7 @@
 
 # shellcheck disable=SC2005,SC2016
 fzf_menu() {
-	echo "$(mpc playlist --format "%title%\t$HOME/Música/%file%" \
+	echo "$(mpc playlist --format "%title%\t$(xdg-user-dir MUSIC)/%file%" \
 		| fzf --reverse \
 		--delimiter='\t' \
 		--with-nth=1 \
