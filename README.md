@@ -17,7 +17,9 @@ Note: Only works on `Arch Linux`
 ## List
 
 - arch-wiki - script to launch offline arch wiki pages
-- change-volume - API script to change volume that work with different audio servers
+- change-brightness, API script to change brightness and send notification
+- change-volume - API script to change volume
+that work with different audio servers and send notification
 - counter - Countdown script with rainbow numbers
 - dunst-espeak-critical, dunst notification sound script
 - dunst-espeak-low, dunst notification sound script

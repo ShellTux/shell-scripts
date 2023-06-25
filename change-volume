@@ -3,6 +3,7 @@
 # Dependencies
 # pulsemixer
 # wireplumber
+# libnotify
 
 # $1: quantity in %. ex.: 5, 1, 10 or to toggle mute: toggle-mute
 # $2: - or +
@@ -58,10 +59,11 @@ else
 		1) icon="audio-volume-medium" ;;
 		2) icon="audio-volume-medium" ;;
 		3) icon="audio-volume-high" ;;
+		4) icon="audio-volume-high" ;;
 	esac
 fi
-dunstify --appname="$appName" \
+notify-send --app-name="$appName" \
 	--urgency=low \
 	--icon="$icon" \
-	--hints=string:x-dunst-stack-tag:"$msgTag" \
-	--hints=int:value:"$volume" "Volume: ${volume}%"
+	--hint=string:x-dunst-stack-tag:"$msgTag" \
+	--hint=int:value:"$volume" "Volume: ${volume}%"
