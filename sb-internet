@@ -1,9 +1,23 @@
 #!/bin/sh
 
+get_network_info() {
+	case $1 in
+		ipv4)      ip -brief address | awk '/UP/ {print $3}' | cut -d'/' -f1;;
+		ipv6)      ip -brief address | awk '/UP/ {print $4}' | cut -d'/' -f1;;
+		interface) ip -brief address | awk '/UP/ {print $1}';;
+	esac
+}
+
+interface="$(get_network_info interface)"
+ipv4_address="$(get_network_info ipv4)"
+
 [ -n "$1" ] && BLOCK_BUTTON=$1
 
-case "$BLOCK_BUTTON" in 
-	1) notify-send "$(nmcli)";;
+case "$BLOCK_BUTTON" in
+	1) notify-send \
+		"Network Information" \
+		"Interface: $interface
+IPv4 Address: $ipv4_address";;
 	2) notify-send "Status Bar Module: internet " "\- X: wifi disabled
 \: no wifi connection
 \: wifi connection with quality
@@ -22,23 +36,22 @@ case "$BLOCK_BUTTON" in
 		--command "$EDITOR $0" ;;
 esac
 
-interface="$(ip address | awk '/state UP/ {print $2}' | sed s/://)"
-ipaddress="$(ip address | grep "$interface" | awk '/inet/ {print "" $2}' | \
-	sed 's/\/[[:digit:]]\+//')"
-if grep -xq 'up' /sys/class/net/w*/operstate 2>/dev/null ; then
-	interface="$(ip address | awk '/state UP/ {print $2}' | sed s/://)"
+if grep --quiet --line-regexp 'up' /sys/class/net/w*/operstate 2>/dev/null
+then
 	wifiicon="$(awk '/^\s*w/ { print "", int($3 * 100 / 70) "%" }' \
-		/proc/net/wireless)"" $ipaddress"
-elif grep -xq 'down' /sys/class/net/w*/operstate 2>/dev/null ; then
-	grep -xq '0x1003' /sys/class/net/w*/flags && wifiicon="" || wifiicon="X"
+		/proc/net/wireless)"" $ipv4_address"
+elif grep --quiet --line-regexp 'down' /sys/class/net/w*/operstate 2>/dev/null
+then
+	grep --quiet --line-regexp '0x1003' /sys/class/net/w*/flags && wifiicon="" || wifiicon="X"
   # else
 	# [ "$(cat /sys/class/rfkill/rfkill1/soft 2>/dev/null)" = "1" ] && wifiicon=""
 fi
+
 printf "[%s%s%s]\n" \
 	"$wifiicon" \
-	"$(sed "s/down//;s/up/ $ipaddress/" /sys/class/net/e*/operstate 2>/dev/null)" \
+	"$(sed "s/down//;s/up/ $ipv4_address/" /sys/class/net/e*/operstate 2>/dev/null)" \
 	"$(sed "s/.*//" /sys/class/net/tun*/operstate 2>/dev/null)"
 
 unset interface
-unset ipaddress
+unset ipv4_address
 unset wifiicon
