@@ -11,7 +11,7 @@ usage="$(printf %02.0f "$(free | awk '/^Mem/ { print $3 "/" $2 "*100" }' | bc -l
 case $BLOCK_BUTTON in
 	1) notify-send \
 		-h "int:value:$usage" \
-		"$(ps exc -o cmd,%mem:15 --sort=-%mem | head)";;
+		'Memory Usage' "$(ps exc -o cmd,%mem:15 --sort=-%mem | head)";;
 	2) notify-send \
 		"Status Bar Module: memory " \
 		"\- Shows usage of physical memory RAM.

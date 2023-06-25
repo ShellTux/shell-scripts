@@ -29,7 +29,8 @@ update_wallpaper() {
 
 	notify-send \
 		--icon="$wallpaper_file" \
-		--urgency=low "Wallpaper set: $(basename "$wallpaper_file")"
+		--urgency=low \
+		'Wallpaper Update' "$(basename "$wallpaper_file")"
 }
 
 trap 'change_wallpaper; kill "$PID"' USR1
