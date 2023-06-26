@@ -11,7 +11,7 @@ case "$location" in
 	*) icon="";;
 esac
 
-usage_perc="$(df --output=pcent / | sed --quiet '2{s/%//;p}')"
+usage_perc="$(df --output=pcent "$location" | sed --quiet '2{s/[% ]//g;p}')"
 
 [ -n "$2" ] && BLOCK_BUTTON="$2"
 
