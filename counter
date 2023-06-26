@@ -39,18 +39,18 @@ unset TEMP
 while true
 do
 	case "$1" in
-		'-n'|'--no-notification')
+		-n | --no-notification)
 			notification=false
 			shift
 			continue
 			;;
-		'-t'|'--time')
+		-t | --time)
 			counter="$2"
 			shift 2
 			continue
 			;;
-		'-h'|'--help') usage ;;
-		'--')
+		-h | --help) usage ;;
+		--)
 			shift
 			break
 			;;
