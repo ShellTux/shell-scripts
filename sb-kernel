@@ -4,6 +4,7 @@
 
 case $BLOCK_BUTTON in
 	1) notify-send \
+		--icon=linux-logo-2 \
 		"Kernel Information" \
 		"Kernel name: $(uname --kernel-name)
 Kernel release: $(uname --kernel-release)
