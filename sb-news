@@ -8,9 +8,11 @@
 [ -n "$1" ] && BLOCK_BUTTON=$1
 
 case $BLOCK_BUTTON in
+	1) notify-send 'RSS Feed ' "$(newsboat --execute=print-unread)" ;;
 	2) notify-send --app-name=help \
 		"Status Bar Module: news " \
 		"\- Shows unread news items
+\- <b>Left Click</b>, shows amount of unread rss articles.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, opens newsboat.
 \- <b>Ctrl + Right Click</b> to edit this module.
