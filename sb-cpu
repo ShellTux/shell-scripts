@@ -14,7 +14,7 @@ case $BLOCK_BUTTON in
 	1) notify-send \
 		-h "int:value:$usage" \
 		'Cpu usage' "$(ps exc -o cmd,%cpu:15 --sort=-%cpu | head)";;
-	2) notify-send \
+	2) notify-send --app-name=help \
 		"Status Bar Module: cpu " \
 		"\- Shows usage (%) and current Temperature (ºC) of the cpu.
 \- <b>Left Click</b>, shows top 10 most intensive processes on the cpu.

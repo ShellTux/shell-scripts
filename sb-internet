@@ -18,7 +18,8 @@ case "$BLOCK_BUTTON" in
 		"Network Information" \
 		"Interface: $interface
 IPv4 Address: $ipv4_address";;
-	2) notify-send "Status Bar Module: internet " "\- X: wifi disabled
+	2) notify-send --app-name=help \
+		"Status Bar Module: internet " "\X: wifi disabled
 \: no wifi connection
 \: wifi connection with quality
 \: no ethernet

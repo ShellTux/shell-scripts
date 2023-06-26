@@ -12,7 +12,7 @@ case $BLOCK_BUTTON in
 	1) notify-send \
 		-h "int:value:$usage" \
 		'Memory Usage' "$(ps exc -o cmd,%mem:15 --sort=-%mem | head)";;
-	2) notify-send \
+	2) notify-send --app-name=help \
 		"Status Bar Module: memory " \
 		"\- Shows usage of physical memory RAM.
 \- <b>Left Click</b>, shows top 10 most intensive processes in usage of RAM.

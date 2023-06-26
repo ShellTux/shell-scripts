@@ -37,10 +37,11 @@ showweather() {
 	|| getforecast
 
 case $BLOCK_BUTTON in
-	2) notify-send \
+	2) notify-send --app-name=help \
 		"Status Bar Module: weather " \
-		"\- Shows humidity (%), " \
-		"minimum Temperature (ºC) and maximum Temperature (ºC).
+		"\- Shows humidity (%), minimum Temperature (ºC) \
+and maximum Temperature (ºC).
+\- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, to open weather forecast.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;
 	4) scratchpad \

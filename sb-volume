@@ -33,7 +33,8 @@ is_muted () {
 
 case $BLOCK_BUTTON in
 	1) notify-music ;;
-	2) notify-send " Status Bar Module: Volume" "\- Shows volume ,  if muted
+	2) notify-send --app-name=help \
+		" Status Bar Module: Volume" "\- Shows volume ,  if muted
 \- <b>Left Click</b>, shows current playing/paused music track.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Right Click</b>, Resumes/pauses current music track.

@@ -13,7 +13,7 @@ Machine Hardware name: $(uname --machine)
 Processor Type: $(uname --processor)
 Hardware platform: $(uname --hardware-platform)
 Operation System: $(uname --operating-system)" ;;
-	2) notify-send \
+	2) notify-send --app-name=help \
 		"Status Bar Module: kernel " \
 		"\- Shows current installed linux kernel release.
 \- <b>Left Click</b>, shows more information about installed kernel.

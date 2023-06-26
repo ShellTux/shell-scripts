@@ -5,7 +5,7 @@
 case $BLOCK_BUTTON in
 	1) notify-send 'Calendar' "$(date '+%A, %d de %B de %Y')
 $(cal --color=always | sed 's/..7m/<b><span color=\"red\">/;s/..27m/<\/span><\/b>/')";;
-	2) notify-send \
+	2) notify-send --app-name=help \
 		"Status Bar Module: date " \
 		"\- Shows day of the week and today's date.
 \- <b>Left Click</b>, shows a calendar for the current month.

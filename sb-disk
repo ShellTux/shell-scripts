@@ -22,9 +22,9 @@ case $BLOCK_BUTTON in
 		"$(du --separate-dirs --human-readable "$HOME" 2>&1 \
 		| sort --reverse --human-numeric-sort \
 		| head)";;
-	2) notify-send "Status Bar Module: disk " "\- Show disk usage.
-\- <b>Left Click</b>, shows top 10 directories that use the most space in home folder" \
-	" ($HOME).
+	2) notify-send --app-name=help \
+		"Status Bar Module: disk " "\- Show disk usage.
+\- <b>Left Click</b>, shows top 10 directories that use the most space.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, shows file system space usage.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;

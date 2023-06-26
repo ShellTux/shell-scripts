@@ -6,7 +6,8 @@
 case $BLOCK_BUTTON in
 	1) notify-send "Clock" "Time: $(date '+%H:%M:%S')
 $(timedatectl status | grep -o 'Time zone:.*\|System clock synchronized:.*')";;
-	2) notify-send "Status Bar Module: clock " "\- Shows current time. (Hour:Minute)
+	2) notify-send --app-name=help \
+		"Status Bar Module: clock " "\- Shows current time. (Hour:Minute)
 \- <b>Left Click</b>, shows more information about time.
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Ctrl + Right Click</b> to edit this module." ;;

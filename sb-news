@@ -8,14 +8,14 @@
 [ -n "$1" ] && BLOCK_BUTTON=$1
 
 case $BLOCK_BUTTON in
-	2) notify-send \
+	2) notify-send --app-name=help \
 		"Status Bar Module: news " \
 		"\- Shows unread news items
 \- <b>Middle Click</b>, shows this help notification.
 \- <b>Shift + Left Click</b>, opens newsboat.
 \- <b>Ctrl + Right Click</b> to edit this module.
-<b><span color=\"red\">Note:</span></b>"\
-	"Only one instance of newsboat (including updates) may be running at a time." ;;
+<b><span color=\"red\">Note:</span></b> \
+Only one instance of newsboat (including updates) may be running at a time." ;;
 	4) scratchpad --wait --title News --command newsboat ;;
 	9) scratchpad \
 		--title "Edit $(basename "$0")" \
