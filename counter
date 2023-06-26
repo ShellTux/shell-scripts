@@ -1,13 +1,67 @@
-#!/usr/bin/env sh
+#!/bin/sh
 
 # Dependencies
 # figlet
 # lolcat
 # libnotify
 
+usage() {
+	echo "Usage: $(basename "$0") [-n|--no-notification] [-t|--time seconds] [count]"
+	echo
+	echo "Options:"
+	echo "  -n, --no-notification    Disable desktop notification"
+	echo "  -t, --time seconds       Set the countdown time in seconds (default: 20)"
+	echo "  -h, --help               Show usage page"
+	echo
+	echo "Positional arguments:"
+	echo "  count                     Set the countdown time in seconds"
+	exit 2
+}
+
+# Defaults
+notification=true
 counter=20
 
-[ ! "$1" = "" ] && counter=$1
+TEMP=$(getopt \
+	--options 'nt:h' \
+	--long 'no-notification,time:,help' \
+	--name "$(basename "$0")" -- "$@")
+
+if [ $? -ne 0 ]; then
+	echo 'Terminating...' >&2
+	exit 1
+fi
+
+# Note the quotes around "$TEMP": they are essential!
+eval set -- "$TEMP"
+unset TEMP
+
+while true
+do
+	case "$1" in
+		'-n'|'--no-notification')
+			notification=false
+			shift
+			continue
+			;;
+		'-t'|'--time')
+			counter="$2"
+			shift 2
+			continue
+			;;
+		'-h'|'--help') usage ;;
+		'--')
+			shift
+			break
+			;;
+		*) # Option not dealt with
+			echo 'Internal error!' >&2
+			exit 1
+			;;
+	esac
+done
+
+[ -n "$1" ] && counter="$1"
 
 while [ "$counter" -gt 0 ]
 do
@@ -16,4 +70,4 @@ do
 	sleep 1
 done
 
-notify-send --urgency=critical "Time is up"
+$notification && notify-send --urgency=critical "Time is up"
