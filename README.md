@@ -25,6 +25,7 @@ that work with different audio servers and send notification
 - dunst-espeak-low, dunst notification sound script
 - dunst-espeak-normal, dunst notification sound script
 - emoji-menu, select an emoji and copy to the clipboard
+- gource-video, script to create a video from gource git history
 - grub-playtune, play tune for grub
 - layoutmenu.sh
 - mount-menu, python script to prompt the user to mount or unmount a drive
