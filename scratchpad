@@ -20,6 +20,19 @@ usage() {
 	echo 'Examples:'
 	echo 'scratchpad --class Scratchpad --title Music' \
 		"--command 'ncmpcpp --screen visualizer'"
+	exit 2
+}
+
+debug() {
+	echo "Class: $class"
+	echo "Name: $name"
+	echo "Title: $title"
+	echo "Lines: $lines"
+	echo "Columns: $columns"
+	echo "Width: $width"
+	echo "Height: $height"
+	echo "Terminal: $terminal"
+	echo "Command: $command"
 }
 
 # Default values
@@ -27,10 +40,11 @@ class='Scratchpad'
 command="$SHELL"
 name='Scratchpad'
 resolution="$(xrandr | awk '/\*/ {print $1}')"
-scratchpad_terminal="$TERMINAL"
+terminal="$TERMINAL"
 title='Scratchpad'
 working_directory="$HOME"
 setsid_opts='--fork'
+debugging=false
 
 case $resolution in
 	"1366x768")  lines=24 ; columns=100 ; width=1000 ; height=600 ;;
@@ -38,38 +52,94 @@ case $resolution in
 	*)           lines=24 ; columns=130 ; width=1400 ; height=800 ;;
 esac
 
-for argument in "$@"
+options='hdc:n:t:L:C:e:T:W:w'
+long_options='help,debug,class:,name:,title:,lines:,columns:'
+long_options="$long_options,command:,terminal:,working-directory:,wait"
+TEMP=$(getopt \
+	--options $options \
+	--long  $long_options \
+	--name "$(basename "$0")" -- "$@")
+
+if [ $? -ne 0 ]; then
+	echo 'Terminating...' >&2
+	exit 1
+fi
+
+# Note the quotes around "$TEMP": they are essential!
+eval set -- "$TEMP"
+unset TEMP
+
+while true
 do
-	case "$argument" in
-		-c | --class)    class=$2 ; shift 2 ;;
-		-n | --name)     name=$2 ; shift 2 ;;
-		-t | --title)    title=$2 ; shift 2 ;;
-		-L | --lines)    lines=$2 ; shift 2 ;;
-		-C | --columns)  columns=$2 ; shift 2 ;;
-		-e | --command)  command=$2 ; shift 2 ;;
-		-T | --terminal) scratchpad_terminal=$2 ; shift 2 ;;
-		-W | --working-directory) working_directory=$2 ; shift 2 ;;
-		-w | --wait) setsid_opts="--wait $setsid_opts" ; shift ;;
+	case "$1" in
 		-h | --help)
 			usage
-			exit 0
+			;;
+		-d | --debug)
+			debugging=true
+			shift
+			continue
+			;;
+		-c | --class)
+			class="$2"
+			shift 2
+			continue
+			;;
+		-n | --name)
+			name="$2"
+			shift 2
+			continue
+			;;
+		-t | --title)
+			title="$2"
+			shift 2
+			continue
+			;;
+		-L | --lines)
+			lines="$2"
+			shift 2
+			continue
+			;;
+		-C | --columns)
+			columns="$2"
+			shift 2
+			continue
+			;;
+		-e | --command)
+			command="$2"
+			shift 2
+			continue
+			;;
+		-T | --terminal)
+			terminal="$2"
+			shift 2
+			continue
+			;;
+		-W | --working-directory)
+			working_directory="$2"
+			shift 2
+			continue
+			;;
+		-w | --wait)
+			setsid_opts="--wait $setsid_opts"
+			shift
+			continue
+			;;
+		--)
+			shift
+			break
+			;;
+		*) # Option not dealt with
+			echo 'Internal error!' >&2
+			exit 1
 			;;
 	esac
 done
 
-# echo "Class: $class"
-# echo "Name: $name"
-# echo "Title: $title"
-# echo "Lines: $lines"
-# echo "Columns: $columns"
-# echo "Width: $width"
-# echo "Height: $height"
-# echo "Terminal: $scratchpad_terminal"
-# echo "Command: $com"
-# exit
+$debugging && debug
 
 cd "$working_directory" || exit 1
-case $scratchpad_terminal in
+case $terminal in
 	alacritty) setsid "$setsid_opts" \
 		alacritty \
 		--class "$class,$name" \
