@@ -6,6 +6,7 @@ usage() {
 	echo
 	echo 'Options:'
 	echo ' -h, --help                            Print this help page'
+	echo ' -d, --debug                           Print debugging information'
 	echo ' -c, --class             <class name>  Change window class'
 	echo ' -n, --name              <name>        Change window instance name'
 	echo ' -t, --title             <title>       Change window title'
