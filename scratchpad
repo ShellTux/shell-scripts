@@ -2,18 +2,24 @@
 # shellcheck disable=SC2086
 
 usage() {
-	echo "Usage: $(basename "$0") 'command'"
-	echo " -h, --help                            Print this help page"
-	echo " -c, --class             <class name>  Change window class"
-	echo " -n, --name              <name>        Change window instance name"
-	echo " -t, --title             <title>       Change window title"
-	echo " -L, --lines             <lines>       Change terminal amount of lines"
-	echo " -C, --columns           <columns>     Change terminal amount of columns"
-	echo " -e, --command           <command>     Command to be run on the new " \
-		"terminal"
-	echo " -T, --terminal          <terminal>    Change terminal to be used"
-	echo " -W, --working-directory <directory>   Change working directory"
-	echo " -w, --wait                            Wait for the scratchpad to terminate"
+	echo "Usage: $(basename "$0")"
+	echo
+	echo 'Options:'
+	echo ' -h, --help                            Print this help page'
+	echo ' -c, --class             <class name>  Change window class'
+	echo ' -n, --name              <name>        Change window instance name'
+	echo ' -t, --title             <title>       Change window title'
+	echo ' -L, --lines             <lines>       Change terminal amount of lines'
+	echo ' -C, --columns           <columns>     Change terminal amount of columns'
+	echo ' -e, --command           <command>     Command to be run on the new ' \
+		'terminal'
+	echo ' -T, --terminal          <terminal>    Change terminal to be used'
+	echo ' -W, --working-directory <directory>   Change working directory'
+	echo ' -w, --wait                            Wait for the scratchpad to terminate'
+	echo
+	echo 'Examples:'
+	echo 'scratchpad --class Scratchpad --title Music' \
+		"--command 'ncmpcpp --screen visualizer'"
 }
 
 # Default values
