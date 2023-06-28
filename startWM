@@ -1,6 +1,6 @@
 #!/bin/sh
 
-case $(seq 1 3 | shuf -n 1) in
+case $(shuf --input-range=1-3 --head-count=1) in
 	1) startX dwm ;;
 	2) startX awesome ;;
 	3) startWayland hyprland ;;
