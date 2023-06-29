@@ -22,6 +22,7 @@ change_wallpaper() {
 update_wallpaper() {
 	wallpaper_file="$(head -1 "$WALLPAPER")"
 
+	# TODO: if file is a video use mpvpaper (Wayland only)
 	case "$XDG_SESSION_TYPE" in
 		wayland) swww img --transition-type any "$wallpaper_file" ;;
 		x11)     feh --no-fehbg --bg-fill "$wallpaper_file" ;;
