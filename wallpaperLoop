@@ -1,37 +1,68 @@
 #!/bin/sh
+set -e
 
 # Dependencies:
 # - feh
 # - swww
+# - mpvpaper
 
-DIR="$(xdg-user-dir PICTURES)/Wallpapers"
+[ $# = 0 ] && DIRS="$(xdg-user-dir PICTURES)/Wallpapers $(xdg-user-dir VIDEOS)" || DIRS=$*
 WALLPAPER="/tmp/wallpaper.txt"
 SLEEPTIME=600
 PID=""
+# TODO: add flag to disable videos
+[ "$XDG_SESSION_TYPE" = 'wayland' ] && ENABLE_VIDEOS=true || ENABLE_VIDEOS=false
 
 change_wallpaper() {
-	find "$DIR" \
-		-maxdepth 1 \
-		-type f \
-		-name "*.jpg" -o \
-		-name "*.png" -o \
-		-name "*.gif" \
-		| shuf --head-count=1 > "$WALLPAPER"
+	# shellcheck disable=2086
+	if $ENABLE_VIDEOS
+	then
+		find $DIRS \
+			-maxdepth 1 \
+			-type f \
+			-name "*.jpg" -o \
+			-name "*.png" -o \
+			-name "*.gif" -o \
+			-name "*.mkv" -o \
+			-name ".avi" -o \
+			-name ".m4v" -o \
+			-name ".mp4" -o \
+			-name ".webm" \
+			| shuf --head-count=1 > "$WALLPAPER"
+	else
+		find $DIRS \
+			-maxdepth 1 \
+			-type f \
+			-name "*.jpg" -o \
+			-name "*.png" -o \
+			-name "*.gif" \
+			| shuf --head-count=1 > "$WALLPAPER"
+	fi
 }
 
 update_wallpaper() {
 	wallpaper_file="$(head -1 "$WALLPAPER")"
 
-	# TODO: if file is a video use mpvpaper (Wayland only)
-	case "$XDG_SESSION_TYPE" in
-		wayland) swww img --transition-type any "$wallpaper_file" ;;
-		x11)     feh --no-fehbg --bg-fill "$wallpaper_file" ;;
-	esac
-
 	notify-send \
 		--icon="$wallpaper_file" \
 		--urgency=low \
 		'Wallpaper Update' "$(basename "$wallpaper_file")"
+
+	case "$XDG_SESSION_TYPE" in
+		wayland)
+			case "$wallpaper_file" in
+				*\.mkv | *\.avi | *\.m4v | *\.mp4 | *\.webm)
+					# TODO: Output to specific DISPLAY
+					mpvpaper \
+						--mpv-options="--quiet --volume=10" \
+						'*' "$wallpaper_file"
+					;;
+				*\.jpg | *\.png | *\.gif)
+					swww img --transition-type any "$wallpaper_file"
+					;;
+			esac ;;
+		x11)    feh --no-fehbg --bg-fill "$wallpaper_file" ;;
+	esac
 }
 
 trap 'change_wallpaper; kill "$PID"' USR1
