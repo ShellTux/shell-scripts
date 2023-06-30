@@ -4,7 +4,7 @@
 # - feh
 # - swww
 
-DIR="$HOME/Imagens/Wallpapers"
+DIR="$(xdg-user-dir PICTURES)/Wallpapers"
 WALLPAPER="/tmp/wallpaper.txt"
 SLEEPTIME=600
 PID=""
