@@ -1,17 +1,57 @@
 #!/bin/sh
-set -e
+# set -x
 
 # Dependencies:
 # - feh
 # - swww
 # - mpvpaper
+# - ffmpegthumbnailer
 
-[ $# = 0 ] && DIRS="$(xdg-user-dir PICTURES)/Wallpapers $(xdg-user-dir VIDEOS)" || DIRS=$*
-WALLPAPER="/tmp/wallpaper.txt"
-SLEEPTIME=600
-PID=""
-# TODO: add flag to disable videos
-[ "$XDG_SESSION_TYPE" = 'wayland' ] && ENABLE_VIDEOS=true || ENABLE_VIDEOS=false
+usage() {
+	echo "Usage: $(basename "$0") [directories]"
+	echo
+	echo "Options:"
+	echo "  -h, --help                        Show usage page"
+	echo "  --enable-videos                   Enable videos (wayland only)"
+	echo "  --disable-videos                  Turn off video support"
+	echo "  --mpv-options       <options>     Options to pass to mpv through mpvpaper"
+	echo "  --sleep-interval                  Time interval in seconds between each" \
+		"wallpaper"
+	echo
+	echo "Positional arguments:"
+	echo "  directories               List of directories to search for wallpapers"
+	echo
+	echo "Examples:"
+	echo "$(basename "$0")"
+	echo "$(basename "$0") ~/Images/Wallpapers"
+	echo "$(basename "$0") --disable-videos ~/Images/Wallpapers"
+	echo "$(basename "$0") ~/Images/Wallpapers ~/Videos"
+	echo "$(basename "$0") --mpv-options='--volume=5'"
+	echo "$(basename "$0") --sleep-interval=10"
+	exit 2
+}
+
+debug_message() {
+	local color=36
+	case $1 in
+		INFO)    color=36 ;;
+		ERROR)   color=31 ;;
+		WARNING) color=33 ;;
+		OK)      color=32 ;;
+	esac
+
+	printf '\033['"$color"'m[%s]:\033[0m %s\n' "$1" "$2"
+}
+
+notify_wallpaper() {
+	local wallpaper_file="$(head -1 "$WALLPAPER")"
+
+	# TODO: video thumbnail for desktop notification icon
+	notify-send \
+		--icon="$wallpaper_file" \
+		--urgency=low \
+		'Wallpaper Update' "$(basename "$wallpaper_file")"
+}
 
 change_wallpaper() {
 	# shellcheck disable=2086
@@ -38,47 +78,199 @@ change_wallpaper() {
 			-name "*.gif" \
 			| shuf --head-count=1 > "$WALLPAPER"
 	fi
+
+	debug_message 'OK' "Changed wallpaper to $(head -1 "$WALLPAPER")"
 }
 
-update_wallpaper() {
-	wallpaper_file="$(head -1 "$WALLPAPER")"
-
-	notify-send \
-		--icon="$wallpaper_file" \
-		--urgency=low \
-		'Wallpaper Update' "$(basename "$wallpaper_file")"
-
+clear_screen() {
 	case "$XDG_SESSION_TYPE" in
-		wayland)
-			case "$wallpaper_file" in
-				*\.mkv | *\.avi | *\.m4v | *\.mp4 | *\.webm)
-					# TODO: Output to specific DISPLAY
-					mpvpaper \
-						--mpv-options="--quiet --volume=10" \
-						'*' "$wallpaper_file"
-					;;
-				*\.jpg | *\.png | *\.gif)
-					swww img --transition-type any "$wallpaper_file"
-					;;
-			esac ;;
-		x11)    feh --no-fehbg --bg-fill "$wallpaper_file" ;;
+		wayland) swww clear ;;
 	esac
 }
 
-trap 'change_wallpaper; kill "$PID"' USR1
-trap 'kill "$PID"' HUP
+update_wallpaper() {
+	local wallpaper_file="$(head -1 "$WALLPAPER")"
+	local type="$(grep --max-count=1 --only-matching '\.[a-zA-Z]\{3,4\}$' "$WALLPAPER")"
 
-case "$XDG_SESSION_TYPE" in
-	wayland) printf 'Wayland Wallpaper Loop\n' ;;
-	x11)     printf 'X11 Wallpaper Loop\n' ;;
+	case $type in
+		\.mkv | \.avi | \.m4v | \.mp4 | \.webm) type=video ;;
+		\.jpg | \.png | \.gif) type=image ;;
+		*)
+			debug_message 'ERROR' "Invalid filetype $type"
+			return
+			;;
+	esac
+
+	if [ "$type" = video ] && ! $ENABLE_VIDEOS
+	then
+		debug_message 'ERROR' 'Videos are disabled'
+		return
+	elif [ "$type" = video ] && [ "$XDG_SESSION_TYPE" = x11 ]
+	then
+		debug_message 'ERROR' 'Videos are not supported by Xorg'
+		return
+	fi
+
+	pause_sleep
+	case "$XDG_SESSION_TYPE" in
+		x11) feh --no-fehbg --bg-fill "$wallpaper_file" ;;
+		wayland)
+			case "$type" in
+				video)
+					clear_screen
+					# TODO: Output to specific DISPLAY
+					mpvpaper \
+						--mpv-options="$mpv_options" \
+						'*' "$wallpaper_file" &
+					MPVPAPER_PID=$!
+					;;
+				image) swww img --transition-type any "$wallpaper_file" ;;
+			esac
+			;;
+
+	esac
+
+	debug_message 'OK' "Updated Wallpaper $wallpaper_file"
+	notify_wallpaper
+
+
+	if [ -n "$MPVPAPER_PID" ]
+	then
+		if wait "$MPVPAPER_PID"
+		then
+			MPVPAPER_PID=
+			change_wallpaper
+			kill_sleep
+			return
+		fi
+	fi
+	resume_sleep
+}
+
+kill_sleep() {
+	if [ -n "$SLEEP_PID" ]
+	then
+		kill "$SLEEP_PID"
+	else
+		debug_message 'ERROR' 'No sleep pid'
+	fi
+	SLEEP_PID=
+}
+
+quit_mpvpaper() {
+	[ -z "$MPVPAPER_PID"] && return
+	kill -TERM "$MPVPAPER_PID"
+	MPVPAPER_PID=
+}
+
+pause_sleep() {
+	[ -n "$SLEEP_PID" ] && kill -STOP "$SLEEP_PID"
+}
+
+resume_sleep() {
+	[ -n "$SLEEP_PID" ] && kill -CONT "$SLEEP_PID"
+}
+
+_usr1_signal() {
+	quit_mpvpaper
+	change_wallpaper
+	kill_sleep
+}
+
+_hup_signal() {
+	quit_mpvpaper
+	kill_sleep
+}
+
+SLEEP_TIME=600
+SLEEP_PID=
+WALLPAPER=/tmp/wallpaper.txt
+MPVPAPER_PID=
+case $XDG_SESSION_TYPE in
+	wayland) ENABLE_VIDEOS=true ;;
+	*)       ENABLE_VIDEOS=false ;;
 esac
+mpv_options='--really-quiet --sub-visibility=no --volume=10'
 
-[ ! -f "$WALLPAPER" ] && change_wallpaper
+TEMP=$(getopt \
+	--options 'h' \
+	--long 'help,enable-videos,disable-videos,mpv-options:,sleep-interval:' \
+	--name "$(basename "$0")" -- "$@")
+
+if [ $? -ne 0 ]
+then
+	echo 'Terminating...' >&2
+	exit 1
+fi
+
+# Note the quotes around "$TEMP": they are essential!
+eval set -- "$TEMP"
+unset TEMP
 
 while true
 do
+	case "$1" in
+		-h | --help)
+			usage
+			;;
+		--enable-videos)
+			ENABLE_VIDEOS=true
+			[ "$XDG_SESSION_TYPE" = x11 ] && ENABLE_VIDEOS=false
+			shift
+			continue
+			;;
+		--disable-videos)
+			ENABLE_VIDEOS=false
+			shift
+			continue
+			;;
+		--mpv-options)
+			mpv_options="$2"
+			shift 2
+			continue
+			;;
+		--sleep-interval)
+			SLEEP_TIME="$2"
+			shift 2
+			continue
+			;;
+		--)
+			shift
+			break
+			;;
+		*) # Option not dealt with
+			echo "$1"
+			echo 'Internal error!' >&2
+			exit 1
+			;;
+	esac
+done
+
+[ "$#" = 0 ] \
+	&& DIRS="$(xdg-user-dir PICTURES)/Wallpapers $(xdg-user-dir VIDEOS)" \
+	|| DIRS="$@"
+
+trap _usr1_signal USR1
+trap _hup_signal HUP
+# TODO: add signal to toggle ENABLE_VIDEOS
+
+debug_message 'INFO' "$(basename "$0") started"
+debug_message 'INFO' "SLEEP_TIME    = $SLEEP_TIME"
+debug_message 'INFO' "mpv-options   = $mpv_options"
+debug_message 'INFO' "ENABLE_VIDEOS = $ENABLE_VIDEOS"
+debug_message 'INFO' "DIRS          = $DIRS"
+
+change_wallpaper
+
+while true
+do
+	sleep "$SLEEP_TIME" &
+	SLEEP_PID=$!
+
 	update_wallpaper
-	sleep $SLEEPTIME &
-	PID=$!
-	wait $PID && change_wallpaper
+
+	if wait "$SLEEP_PID"
+	then
+		change_wallpaper
+	fi
 done
