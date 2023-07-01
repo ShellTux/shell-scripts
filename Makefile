@@ -20,6 +20,7 @@ DEPENDENCIES = \
 
 AUR_MANAGER = yay -S --aur --needed --noconfirm
 AUR_DEPENDENCIES = \
+		   mpvpaper \
 		   swww
 
 install: dependencies

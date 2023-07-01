@@ -13,4 +13,5 @@ fi
 
 case "$1" in
 	next) kill -USR1 "$DAEMON_PID" ;;
+	reset-timer) kill -HUP "$DAEMON_PID" ;;
 esac
