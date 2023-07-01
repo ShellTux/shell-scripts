@@ -161,27 +161,45 @@ update_wallpaper() {
 }
 
 kill_sleep() {
-	if [ -n "$SLEEP_PID" ]
+	if [ -z "$SLEEP_PID" ]
 	then
-		kill "$SLEEP_PID"
-	else
 		debug_message 'ERROR' 'No sleep pid'
+		return
 	fi
+
+	kill "$SLEEP_PID"
 	SLEEP_PID=
 }
 
 quit_mpvpaper() {
-	[ -z "$MPVPAPER_PID"] && return
+	if [ -z "$MPVPAPER_PID" ]
+	then
+		debug_message 'ERROR' 'No mpvpaper pid'
+		return
+	fi
+
 	kill -TERM "$MPVPAPER_PID"
 	MPVPAPER_PID=
 }
 
 pause_sleep() {
-	[ -n "$SLEEP_PID" ] && kill -STOP "$SLEEP_PID"
+	if [ -z "$SLEEP_PID" ]
+	then
+		debug_message 'ERROR' 'No sleep pid'
+		return
+	fi
+
+	kill -STOP "$SLEEP_PID"
 }
 
 resume_sleep() {
-	[ -n "$SLEEP_PID" ] && kill -CONT "$SLEEP_PID"
+	if [ -z "$SLEEP_PID" ]
+	then
+		debug_message 'ERROR' 'No sleep pid'
+		return
+	fi
+	
+	kill -CONT "$SLEEP_PID"
 }
 
 _usr1_signal() {
@@ -203,7 +221,7 @@ case $XDG_SESSION_TYPE in
 	wayland) ENABLE_VIDEOS=true ;;
 	*)       ENABLE_VIDEOS=false ;;
 esac
-mpv_options='--really-quiet --sub-visibility=no --volume=10'
+mpv_options='--really-quiet --sub-visibility=no --volume=24'
 
 TEMP=$(getopt \
 	--options 'h' \
