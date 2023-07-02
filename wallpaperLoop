@@ -285,11 +285,22 @@ trap _usr1_signal USR1
 trap _hup_signal HUP
 # TODO: add signal to toggle ENABLE_VIDEOS
 
+if [ "$(pgrep $(basename "$0") | wc --lines)" -gt 2 ]
+then
+	debug_message 'ERROR' "Another instance of $(basename "$0") running"
+	exit 1
+fi
+
 debug_message 'INFO' "$(basename "$0") started"
 debug_message 'INFO' "SLEEP_TIME    = $SLEEP_TIME"
 debug_message 'INFO' "mpv-options   = $mpv_options"
 debug_message 'INFO' "ENABLE_VIDEOS = $ENABLE_VIDEOS"
 debug_message 'INFO' "DIRS          = $DIRS"
+
+if [ "$XDG_SESSION_TYPE" = wayland ]
+then
+	swww init
+fi
 
 change_wallpaper
 
