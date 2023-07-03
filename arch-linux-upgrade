@@ -2,20 +2,43 @@
 
 aur_helper=yay
 
-[ "$(pacman -Qu | wc -l)" = "0" ] \
-	&& printf "\nPackages up to date!\n" \
-	&& read -r _ \
-	&& exit
-printf "Beginning upgrading packages\nsudo pacman -Syu\n"
-if [ ! "$(pacman -Qu linux)" = "" ];
+debug_message() {
+	if $color_support
+	then
+		local color=36
+		case $1 in
+			INFO)    color=36 ;;
+			ERROR)   color=31 ;;
+			WARNING) color=33 ;;
+			OK)      color=32 ;;
+		esac
+		printf '\033['"$color"'m[%s]:\033[0m %s\n' "$1" "$2"
+	else
+		printf '[%s]: %s\n' "$1" "$2"
+	fi
+}
+
+[ -t 1 ] && [ -x "$(command -v tput)" ] \
+	&& [ -n "$(tput colors)" ] \
+	&& [ "$(tput colors)" -ge 8 ] \
+	&& color_support=true || color_support=false
+
+if [ -z "$(pacman -Qu)" ]
 then
-	printf "There is a kernel update. It will reboot\n"
+	debug_message 'INFO' 'Packages up to date!'
+	read -r _
+	exit
+fi
+
+debug_message 'INFO' 'Beginning upgrading packages'
+debug_message 'WARNING' 'sudo pacman -Syy'
+if [ -n "$(pacman -Qu linux)" ]
+then
+	debug_message 'INFO' 'Available Linux Kernel update'
+	debug_message 'WARNING' '60 seconds until reboot after sucessful upgrade'
 	pacman -Qu linux
 	sudo pacman -Syu
-	notify-send \
-		--expire-time 60000 \
-		--urgency critical \
-		"Reboot" "1 minute until reboot"
+	notify-send --urgency=critical 'Reboot' '1 minute until reboot'
 	sleep 60
 	notify-send "Rebooting Machine..."
 	sleep 1
@@ -23,13 +46,16 @@ then
 else
 	sudo pacman -Syu
 fi
+
 printf 'Upgrade AUR Packages? [y/N] '
 read -r aur
 if [ "$aur" = "y" ] || [ "$aur" = "Y" ] || [ "$aur" = "yes" ]
 then
 	$aur_helper --aur -Syyu
 fi
-printf "\nUpgrade completed.\nPress <Enter> to exit window.\n"
+
+debug_message 'OK' 'Upgrade Complete'
+printf 'Press <Enter> to exit window.\n'
 read -r _
 
 pkill -RTMIN+2 dwmblocks
