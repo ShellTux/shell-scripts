@@ -34,6 +34,7 @@ that work with different audio servers and send notification
 - notifcation-sound, play a sound according to notification urgency
 - notify-music, notify current track to the notification server
 - notify-sudo, shell script sending a desktop notificaiton when running `sudo`
+- notify-wallpaper, notify current wallpaper
 - onefetch-languages, print every language for onefetch
 - preview, preview script for lf and fzf
 - sb-battery
