@@ -2,40 +2,19 @@
 
 aur_helper=yay
 
-debug_message() {
-	if $color_support
-	then
-		local color=36
-		case $1 in
-			INFO)    color=36 ;;
-			ERROR)   color=31 ;;
-			WARNING) color=33 ;;
-			OK)      color=32 ;;
-		esac
-		printf '\033['"$color"'m[%s]:\033[0m %s\n' "$1" "$2"
-	else
-		printf '[%s]: %s\n' "$1" "$2"
-	fi
-}
-
-[ -t 1 ] && [ -x "$(command -v tput)" ] \
-	&& [ -n "$(tput colors)" ] \
-	&& [ "$(tput colors)" -ge 8 ] \
-	&& color_support=true || color_support=false
-
 if [ -z "$(pacman -Qu)" ]
 then
-	debug_message 'INFO' 'Packages up to date!'
+	debug-message 'INFO' 'Packages up to date!'
 	read -r _
 	exit
 fi
 
-debug_message 'INFO' 'Beginning upgrading packages'
-debug_message 'WARNING' 'sudo pacman -Syy'
+debug-message 'INFO' 'Beginning upgrading packages'
+debug-message 'WARNING' 'sudo pacman -Syy'
 if [ -n "$(pacman -Qu linux)" ]
 then
-	debug_message 'INFO' 'Available Linux Kernel update'
-	debug_message 'WARNING' '60 seconds until reboot after sucessful upgrade'
+	debug-message 'INFO' 'Available Linux Kernel update'
+	debug-message 'WARNING' '60 seconds until reboot after sucessful upgrade'
 	pacman -Qu linux
 	sudo pacman -Syu
 	notify-send --urgency=critical 'Reboot' '1 minute until reboot'
@@ -54,7 +33,7 @@ then
 	$aur_helper --aur -Syyu
 fi
 
-debug_message 'OK' 'Upgrade Complete'
+debug-message 'OK' 'Upgrade Complete'
 printf 'Press <Enter> to exit window.\n'
 read -r _
 

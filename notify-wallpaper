@@ -2,18 +2,6 @@
 
 WALLPAPER=/tmp/wallpaper.txt
 
-debug_message() {
-	local color=36
-	case $1 in
-		INFO)    color=36 ;;
-		ERROR)   color=31 ;;
-		WARNING) color=33 ;;
-		OK)      color=32 ;;
-	esac
-
-	printf '\033['"$color"'m[%s]:\033[0m %s\n' "$1" "$2"
-}
-
 file_type() {
 	local type="$(echo "$1" | grep --max-count=1 --only-matching '\.[a-zA-Z]\{3,4\}$')"
 
@@ -21,7 +9,7 @@ file_type() {
 		\.mkv | \.avi | \.m4v | \.mp4 | \.webm) type=video ;;
 		\.jpg | \.png | \.gif) type=image ;;
 		*)
-			debug_message 'ERROR' "Invalid filetype $type" >&2
+			debug-message 'ERROR' "Invalid filetype $type" >&2
 			return
 			;;
 	esac
