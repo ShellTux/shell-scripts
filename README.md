@@ -21,6 +21,7 @@ Note: Only works on `Arch Linux`
 - change-volume - API script to change volume
 that work with different audio servers and send notification
 - counter - Countdown script with rainbow numbers
+- debug-message, script to log debugging messages
 - dunst-espeak-critical, dunst notification sound script
 - dunst-espeak-low, dunst notification sound script
 - dunst-espeak-normal, dunst notification sound script

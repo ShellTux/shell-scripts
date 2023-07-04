@@ -4,6 +4,7 @@
 !/change-brightness
 !/change-volume
 !/counter
+!/debug-message
 !/dunst-espeak-critical
 !/dunst-espeak-low
 !/dunst-espeak-normal

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+color=36
+case $1 in
+	INFO)    color=36 ;;
+	ERROR)   color=31 ;;
+	WARNING) color=33 ;;
+	OK)      color=32 ;;
+esac
+
+# TODO: make script compatible without color support terminals
+printf '\033['"$color"'m[%s]:\033[0m %s\n' "$1" "$2"

@@ -31,18 +31,6 @@ usage() {
 	exit 2
 }
 
-debug_message() {
-	local color=36
-	case $1 in
-		INFO)    color=36 ;;
-		ERROR)   color=31 ;;
-		WARNING) color=33 ;;
-		OK)      color=32 ;;
-	esac
-
-	printf '\033['"$color"'m[%s]:\033[0m %s\n' "$1" "$2"
-}
-
 file_type() {
 	local type="$(echo "$1" | grep --max-count=1 --only-matching '\.[a-zA-Z]\{3,4\}$')"
 
@@ -50,7 +38,7 @@ file_type() {
 		\.mkv | \.avi | \.m4v | \.mp4 | \.webm) type=video ;;
 		\.jpg | \.png | \.gif) type=image ;;
 		*)
-			debug_message 'ERROR' "Invalid filetype $type" >&2
+			debug-message 'ERROR' "Invalid filetype $type" >&2
 			return
 			;;
 	esac
@@ -101,7 +89,7 @@ change_wallpaper() {
 			| shuf --head-count=1 > "$WALLPAPER"
 	fi
 
-	debug_message 'OK' "Changed wallpaper to $(head -1 "$WALLPAPER")"
+	debug-message 'OK' "Changed wallpaper to $(head -1 "$WALLPAPER")"
 }
 
 clear_screen() {
@@ -116,11 +104,11 @@ update_wallpaper() {
 
 	if [ "$type" = video ] && ! $ENABLE_VIDEOS
 	then
-		debug_message 'ERROR' 'Videos are disabled'
+		debug-message 'ERROR' 'Videos are disabled'
 		return
 	elif [ "$type" = video ] && [ "$XDG_SESSION_TYPE" = x11 ]
 	then
-		debug_message 'ERROR' 'Videos are not supported by Xorg'
+		debug-message 'ERROR' 'Videos are not supported by Xorg'
 		return
 	fi
 
@@ -143,7 +131,7 @@ update_wallpaper() {
 
 	esac
 
-	debug_message 'OK' "Updated Wallpaper $wallpaper_file"
+	debug-message 'OK' "Updated Wallpaper $wallpaper_file"
 	notify_wallpaper
 
 
@@ -163,7 +151,7 @@ update_wallpaper() {
 kill_sleep() {
 	if [ -z "$SLEEP_PID" ]
 	then
-		debug_message 'ERROR' 'No sleep pid'
+		debug-message 'ERROR' 'No sleep pid'
 		return
 	fi
 
@@ -174,7 +162,7 @@ kill_sleep() {
 quit_mpvpaper() {
 	if [ -z "$MPVPAPER_PID" ]
 	then
-		debug_message 'ERROR' 'No mpvpaper pid'
+		debug-message 'ERROR' 'No mpvpaper pid'
 		return
 	fi
 
@@ -185,7 +173,7 @@ quit_mpvpaper() {
 pause_sleep() {
 	if [ -z "$SLEEP_PID" ]
 	then
-		debug_message 'ERROR' 'No sleep pid'
+		debug-message 'ERROR' 'No sleep pid'
 		return
 	fi
 
@@ -195,7 +183,7 @@ pause_sleep() {
 resume_sleep() {
 	if [ -z "$SLEEP_PID" ]
 	then
-		debug_message 'ERROR' 'No sleep pid'
+		debug-message 'ERROR' 'No sleep pid'
 		return
 	fi
 	
@@ -287,15 +275,15 @@ trap _hup_signal HUP
 
 if [ "$(pgrep $(basename "$0") | wc --lines)" -gt 2 ]
 then
-	debug_message 'ERROR' "Another instance of $(basename "$0") running"
+	debug-message 'ERROR' "Another instance of $(basename "$0") running"
 	exit 1
 fi
 
-debug_message 'INFO' "$(basename "$0") started"
-debug_message 'INFO' "SLEEP_TIME    = $SLEEP_TIME"
-debug_message 'INFO' "mpv-options   = $mpv_options"
-debug_message 'INFO' "ENABLE_VIDEOS = $ENABLE_VIDEOS"
-debug_message 'INFO' "DIRS          = $DIRS"
+debug-message 'INFO' "$(basename "$0") started"
+debug-message 'INFO' "SLEEP_TIME    = $SLEEP_TIME"
+debug-message 'INFO' "mpv-options   = $mpv_options"
+debug-message 'INFO' "ENABLE_VIDEOS = $ENABLE_VIDEOS"
+debug-message 'INFO' "DIRS          = $DIRS"
 
 if [ "$XDG_SESSION_TYPE" = wayland ]
 then
