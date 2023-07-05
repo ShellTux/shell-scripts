@@ -1,37 +1,32 @@
 #!/bin/sh
 
 WALLPAPER=/tmp/wallpaper.txt
+wallpaper_file="$(head -1 "$WALLPAPER")"
 
-file_type() {
-	local type="$(echo "$1" | grep --max-count=1 --only-matching '\.[a-zA-Z]\{3,4\}$')"
+type="$(echo "$wallpaper_file" | grep --max-count=1 --only-matching '\.[a-zA-Z]\{3,4\}$')"
 
-	case $type in
-		\.mkv | \.avi | \.m4v | \.mp4 | \.webm) type=video ;;
-		\.jpg | \.png | \.gif) type=image ;;
-		*)
-			debug-message 'ERROR' "Invalid filetype $type" >&2
-			return
-			;;
-	esac
+case $type in
+	\.mkv | \.avi | \.m4v | \.mp4 | \.webm) type=video ;;
+	\.jpg | \.png | \.gif) type=image ;;
+	*)
+		debug-message 'ERROR' "Invalid filetype $type" >&2
+		return
+		;;
+esac
 
-	echo "$type"
-}
+icon_file="$wallpaper_file"
 
-notify_wallpaper() {
-	local wallpaper_file="$(head -1 "$WALLPAPER")"
-	local type="$(file_type "$wallpaper_file")"
-	local icon_file="$wallpaper_file"
+if [ "$type" = video ]
+then
+	icon_file=/tmp/wallpaper-thumbnail.png
+	ffmpegthumbnailer \
+		-i "$wallpaper_file" \
+		-o "$icon_file" \
+		-s 0 \
+		-t "$(shuf --input-range=10-90 --head-count=1)%"
+fi
 
-	# TODO: video thumbnail for desktop notification icon
-	if [ "$type" = video ]
-	then
-		icon_file=/tmp/wallpaper-thumbnail.png
-		ffmpegthumbnailer -i "$wallpaper_file" -o "$icon_file" -s 0 -t "$(shuf --input-range=10-90 --head-count=1)%"
-	fi
-	notify-send \
-		--icon="$icon_file" \
-		--urgency=low \
-		'Wallpaper Update' "$(basename "$wallpaper_file")"
-}
-
-notify_wallpaper
+notify-send \
+	--icon="$icon_file" \
+	--urgency=low \
+	'Wallpaper Update' "$(basename "$wallpaper_file")"
