@@ -19,12 +19,9 @@ then
 			scrot --quality $quality --file "$file";;
 	esac
 
-	[ -f "$file" ] || exit 0
+	[ -f "$file" ] || exit 1
 
-	notify-send \
-		--icon "$file" \
-		"Screenshot Taken Successfully" \
-		"Copied to Clipboard  "
+	# TODO: Copy to clipboard
 elif [ "$XDG_SESSION_TYPE" = "wayland" ]
 then
 	case $1 in
@@ -41,11 +38,12 @@ then
 			grim "$file";;
 	esac
 
-	[ -f "$file" ] || exit 0
+	[ -f "$file" ] || exit 1
 
 	wl-copy < "$file"
-	notify-send \
-		--icon "$file" \
-		"Screenshot Taken Successfully" \
-		"Copied to Clipboard  "
 fi
+
+[ -f "$file" ] || exit 1 \
+	&& notify-send --icon "$file" "Screenshot Taken Successfully" \
+	"Copied to Clipboard  
+$file"
