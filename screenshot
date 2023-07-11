@@ -1,14 +1,27 @@
 #!/bin/sh
 
-folder="$HOME/Imagens/Screenshots/"
+folder="$(xdg-user-dir PICTURES)/Screenshots/"
 cd "$folder" || exit 1
 
-file="$HOME/Imagens/Screenshots/Capture-$(date +%Y-%m-%d_%H-%m-%s).png"
+file="$(xdg-user-dir PICTURES)/Screenshots/Capture-$(date +%Y-%m-%d_%H-%m-%s).png"
 quality=100
+
+choices='Fullscreen
+Select Window
+Current Window'
+
+# TODO: Use other launchers besides dmenu
+choice="$(echo "$choices" | dmenu)"
+case $choice in
+	Fullscreen) choice=fullscreen ;;
+	"Select Window") choice=select ;;
+	"Current Window") choice=current ;;
+esac
+
 
 if [ "$XDG_SESSION_TYPE" = "x11" ]
 then
-	case $1 in
+	case $choice in
 		fullscreen )
 			scrot --quality $quality --file "$file";;
 		select )
@@ -24,7 +37,7 @@ then
 	# TODO: Copy to clipboard
 elif [ "$XDG_SESSION_TYPE" = "wayland" ]
 then
-	case $1 in
+	case $choice in
 		fullscreen )
 			grim "$file";;
 		select )
