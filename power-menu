@@ -1,0 +1,14 @@
+#!/bin/sh
+
+choices='
+Shutdown
+Reboot
+'
+
+# TODO: Use other launchers besides dmenu
+choice="$(echo "$choices" | dmenu)"
+case $choice in
+	Shutdown) shutdown now ;;
+	Reboot)   reboot ;;
+esac
+
