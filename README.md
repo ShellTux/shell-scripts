@@ -64,6 +64,7 @@ that work with different audio servers and send notification
 - tmux-scratchpad, this shell script creates a tmux session to
 be attached to a `Hyprland scratchpad`.
 - toggle-mute, API script to toggle mute that work with different audio servers
+- update-repos, script to do git pull on all projects
 - wacom, configuration script to set wacom tablet (x11 only)
 - wallpaperLoop, just a script to loop over multiple wallpapers
 - wallpaper, set wallpaper

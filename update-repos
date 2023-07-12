@@ -1,0 +1,10 @@
+#!/bin/sh
+
+root_folder="$HOME/.local/src ${XDG_CONFIG_HOME:-$HOME/.config}"
+
+find $root_folder -type d -name ".git" | xargs dirname | sort --unique | while read repo
+do
+	printf '%s: ' "$repo"
+	git -C "$repo" pull || read -r lol
+	unset lol
+done
