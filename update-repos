@@ -5,7 +5,7 @@ root_folders="$HOME/.local/src ${XDG_CONFIG_HOME:-$HOME/.config}"
 
 for root in $root_folders
 do
-      for repo in $(find "$root" -type d -name '.git' -exec dirname {} \; | sort --unique)
+      for repo in $(find "$root" -maxdepth 3 -type d -name '.git' -exec dirname {} \; | sort --unique)
       do
 	    if git -C "$repo" pull --quiet
 	    then
