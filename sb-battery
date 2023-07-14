@@ -29,7 +29,8 @@ for battery in /sys/class/power_supply/BAT?*; do
 		"4") icon="";; # Full
 		*) icon="!";;
 	esac
-	if [ ! "$stat" = "" ] && [ "$level" -lt 20 ];then
+	# TODO: Don't check stat against magical literal string
+	if [ ! "$stat" = " " ] && [ "$level" -lt 20 ];then
 	      stat="! $stat"
 	      notify-send --urgency="critical" -h "int:value:$level" "Low on battery"
 	fi
